@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V3.1</title>
+    <title>MuseumCatering Kassa V3.2</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* STYLES BLIJVEN HETZELFDE - GEOPTIMALISEERD VOOR TABLET */
+        /* STYLES */
         :root { --bg-body: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --warning: #f59e0b; --danger: #ef4444; --gold: #fbbf24; --radius: 12px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
@@ -34,9 +34,12 @@
         .dot.err { background: var(--danger); }
 
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-        .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
         
+        /* NIEUW: Pairing Pulse voor Tabs */
+        .cat-btn.suggest-pulse { animation: tabPulse 1.5s infinite; border-color: var(--warning); color: #b45309; background: #fffbeb; }
+
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
         .p-card { background: var(--bg-panel); border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.1s; }
         .p-card:active { transform: scale(0.96); background: #e2e8f0; }
@@ -50,7 +53,9 @@
         .p-price { font-weight: 600; color: var(--text-muted); align-self: flex-end; font-size: 0.9rem; }
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
-        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3) !important; animation: pulseGold 1.5s infinite; z-index: 10; }
+        
+        /* NIEUW: Pairing Gold voor Producten */
+        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.4) !important; animation: pulseGold 1.5s infinite; z-index: 10; }
 
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
         .ticket-title { font-weight: 800; font-size: 1.1rem; }
@@ -69,6 +74,9 @@
         .btn-opt.active { background: #fff7ed; color: #c2410c; border-color: #f97316; }
         .report-btn { width:100%; text-align:center; padding:10px; font-weight:700; color:var(--primary); text-decoration:underline; cursor:pointer; font-size:0.9rem; }
         .footer-tools { display: flex; justify-content: space-between; margin-top:5px; font-size:0.8rem; color:var(--text-muted);}
+        
+        /* NIEUW: Warning Footer */
+        .warning-footer { background: #111827; color: #fcd34d; padding: 12px; text-align: center; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px; margin-top: auto; }
 
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
         .modal-backdrop.open { display: flex; }
@@ -87,7 +95,9 @@
         .alert-banner.show { transform: translateY(0); }
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; }
+        
         @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes tabPulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
         @keyframes slideIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
         @keyframes blink { 50% { opacity: 0.4; } }
     </style>
@@ -178,6 +188,7 @@
                 <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="chk-training" onchange="App.settings.toggleTraining()"> Training</label>
             </div>
         </div>
+        <div class="warning-footer">⚠️ Invoeren op Hoofdkassa!</div>
     </div>
 </div>
 
@@ -223,7 +234,14 @@ const App = {
             if(State.isProcessing) return;
             let item = State.cart.find(x => x.n === name);
             if(item) item.q++; else State.cart.push({ n:name, p:price, q:1, c:catIdx });
-            if(catIdx === 1) App.ui.triggerGold();
+            
+            // --- SMART PAIRING LOGICA ---
+            // 1. Warme Drank gekozen (Cat 1) -> Pulse Zoetigheden Tab (Cat 3)
+            if(catIdx === 1) App.ui.pulseTab(3);
+            
+            // 2. Taart of Warme Choco gekozen -> Highlight Slagroom
+            if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom");
+            
             App.ui.renderCart(); App.ui.renderGrid();
         },
         remove: (idx) => { if(State.cart[idx].q > 1) State.cart[idx].q--; else State.cart.splice(idx, 1); App.ui.renderCart(); App.ui.renderGrid(); },
@@ -381,7 +399,7 @@ const App = {
                 const inCart = State.cart.find(x => x.n === p.n);
                 const badge = inCart ? `<div class="p-badge visible">${inCart.q}</div>` : `<div class="p-badge"></div>`;
                 const action = p.special ? `App.ui.openNumpad()` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
-                const extra = p.c===3 ? 'suggest-target' : '';
+                const extra = p.c===3 ? 'suggest-target' : ''; // Voor de zekerheid ook class meegeven
                 return `<div class="p-card cat-style-${p.c} ${extra}" onclick="${action}">${badge}<div class="p-name">${p.n}</div><div class="p-price">${p.special?"...":Utils.formatPrice(p.p)}</div></div>`;
             }).join('');
         },
@@ -402,7 +420,34 @@ const App = {
             if([10,12,14,16].includes(now.getHours()) && now.getMinutes()===0 && now.getSeconds()===0) document.getElementById('haccp-alert').classList.add('show');
             if(now.getHours()===16 && now.getMinutes()===45 && now.getSeconds()===0) document.getElementById('closing-alert').classList.add('show');
         },
-        triggerGold: () => { document.querySelectorAll('.suggest-target').forEach(e => { e.classList.add('suggest-gold'); setTimeout(()=>e.classList.remove('suggest-gold'), 5000); }); },
+        
+        // --- SLIMME PAIRING FUNCTIES ---
+        triggerGold: () => { 
+            document.querySelectorAll('.suggest-target').forEach(e => { 
+                e.classList.add('suggest-gold'); 
+                setTimeout(()=>e.classList.remove('suggest-gold'), 5000); 
+            }); 
+        },
+        pulseTab: (catIndex) => {
+            document.querySelectorAll('.cat-btn').forEach(e => e.classList.remove('suggest-pulse'));
+            const tabs = document.querySelectorAll('.cat-btn');
+            if(tabs[catIndex]) {
+                tabs[catIndex].classList.add('suggest-pulse');
+                setTimeout(()=>tabs[catIndex].classList.remove('suggest-pulse'), 4000);
+            }
+        },
+        highlightProduct: (prodName) => {
+            // Zoek product op naam in huidige grid en geef goud
+            const cards = document.querySelectorAll('.p-card');
+            cards.forEach(card => {
+                if(card.innerText.includes(prodName)) {
+                    card.classList.add('suggest-gold');
+                    setTimeout(() => card.classList.remove('suggest-gold'), 5000);
+                }
+            });
+        },
+        // -------------------------------
+
         setLoading: (b) => document.getElementById('app-wrapper').style.opacity = b ? 0.7 : 1,
         openModal: (id) => document.getElementById(id).classList.add('open'),
         closeModal: (id) => document.getElementById(id).classList.remove('open'),
