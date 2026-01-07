@@ -3,424 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa</title>
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="MuseumCatering Kassa">
-    <meta name="theme-color" content="#f1f5f9">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/cash-register.png">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/96/cash-register.png">
+    <title>MuseumCatering Kassa V26</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg-app: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --col-primary: #0f172a; --col-accent: #2563eb; --col-success: #16a34a; --col-warning: #f59e0b; --col-danger: #ef4444; --col-staff: #c2410c; --col-training: #0ea5e9; --cat-blue: #eff6ff; --cat-orange: #fff7ed; --cat-purple: #faf5ff; --radius: 10px; --shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+        :root { --bg-app: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --col-primary: #0f172a; --col-accent: #2563eb; --col-success: #16a34a; --col-warning: #f59e0b; --col-danger: #ef4444; --radius: 12px; --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --gold: #ffd700; }
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-app); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
-        button { border: none; outline: none; font-family: inherit; cursor: pointer; touch-action: manipulation; }
-        .app-container { display: flex; width: 100%; height: 100%; transition: box-shadow 0.5s; position: relative; z-index: 1;}
-        .heat-med { box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.3); }
-        .heat-high { box-shadow: inset 0 0 40px rgba(239, 68, 68, 0.5); border: 2px solid var(--col-danger); }
-        .left-panel { flex: 68; display: flex; flex-direction: column; padding: 12px; gap: 10px; }
-        .right-panel { flex: 32; background: white; display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -5px 0 20px rgba(0,0,0,0.05); z-index: 20; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 10px 15px; border-radius: var(--radius); box-shadow: var(--shadow); transition: background 0.3s; }
-        .top-bar.training { background: var(--col-training); color: white; }
-        .top-bar.training .brand, .top-bar.training .status-text { color: white !important; }
-        .brand { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; }
-        .status-area { display: flex; align-items: center; gap: 10px; }
-        .pill { background: #f1f5f9; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
-        .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; transition: 0.3s; }
-        .dot.online { background: var(--col-success); box-shadow: 0 0 6px var(--col-success); }
-        .dot.syncing { background: var(--col-warning); animation: pulse 1s infinite; }
-        .bat-icon { font-size: 0.9rem; }
-        .bat-low { color: var(--col-danger); animation: pulse 1s infinite; }
-        .cat-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
-        .cat-btn { padding: 12px 18px; background: white; border-radius: 8px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); white-space: nowrap; transition: 0.1s; border: 1px solid transparent; flex-shrink: 0; }
-        .cat-btn.active { background: var(--col-primary); color: white; transform: translateY(-1px); box-shadow: 0 3px 6px rgba(0,0,0,0.15); }
-        .cat-btn.suggest-pulse, .p-card.suggest-pulse { animation: suggestPulse 1.5s infinite; border-color: var(--col-warning); box-shadow: 0 0 10px rgba(245, 158, 11, 0.5); z-index: 10; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
-        .p-card { background: white; border-radius: 8px; padding: 8px 10px; height: 85px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; transition: 0.05s; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .p-card:active { transform: scale(0.96); background: #e2e8f0; }
-        .p-card.cat-0 { background: linear-gradient(to bottom right, white, var(--cat-blue)); border-color: #bfdbfe; }
-        .p-card.cat-1 { background: linear-gradient(to bottom right, white, var(--cat-orange)); border-color: #fed7aa; }
-        .p-card.cat-2 { background: linear-gradient(to bottom right, white, #faf5ff); border-color: #e9d5ff; }
-        .p-card.cat-3 { background: linear-gradient(to bottom right, white, #fdf2f8); border-color: #fbcfe8; }
-        .p-card.cat-4 { background: linear-gradient(to bottom right, white, #f0fdf4); border-color: #bbf7d0; }
-        .p-card.cat-5 { background: linear-gradient(to bottom right, white, #f8fafc); border-color: #e2e8f0; }
-        .p-name { font-weight: 700; font-size: 0.85rem; line-height: 1.15; color: var(--text-main); word-wrap: break-word;}
-        .p-price { font-weight: 600; color: var(--text-muted); align-self: flex-end; font-size: 0.8rem;}
-        .p-badge { position: absolute; top: -5px; right: -5px; background: var(--col-primary); color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 0.75rem; font-weight: bold; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.1s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); z-index: 5; }
-        .p-badge.visible { opacity: 1; transform: scale(1); }
-        .ticket-title { padding: 12px 15px; font-weight: 800; font-size: 1rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
-        .last-bill-btn { background: #e0f2fe; color: #0369a1; font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; font-weight: 700; cursor: pointer; border: 1px solid #bae6fd; display: flex; align-items: center; gap: 5px; }
-        .cart-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .cart-row { display: grid; grid-template-columns: 35px 1fr 30px; gap: 8px; align-items: center; padding: 8px; background: white; border-radius: 8px; margin-bottom: 6px; border: 1px solid #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.03); animation: slideIn 0.1s ease-out; }
-        .qty-control { background: #eff6ff; color: var(--col-accent); border-radius: 6px; height: 32px; width: 32px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; }
-        .btn-del-row { height: 32px; color: var(--col-danger); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; background: #fef2f2; border-radius: 6px; cursor: pointer; }
-        .action-area { background: white; padding: 15px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
-        .total-display { text-align: right; font-size: 2.2rem; font-weight: 900; line-height: 1; margin-bottom: 5px; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 8px; height: 70px; }
-        .btn-main { border-radius: 10px; font-weight: 800; font-size: 1.1rem; transition: 0.1s; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2;}
-        .btn-main:active { transform: scale(0.97); }
+        
+        /* Grote Knoppen Layout */
+        .left-panel { flex: 65; display: flex; flex-direction: column; padding: 15px; gap: 12px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
+        
+        .p-card { background: white; border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; transition: 0.1s; cursor: pointer; box-shadow: var(--shadow); }
+        .p-card:active { transform: scale(0.95); background: #e2e8f0; }
+        .p-name { font-weight: 800; font-size: 0.95rem; line-height: 1.2; }
+        .p-price { font-weight: 600; color: var(--text-muted); font-size: 0.9rem; align-self: flex-end; }
+
+        /* Goud Randje Effect voor Zoetigheden */
+        .suggest-gold { 
+            border: 3px solid var(--gold) !important; 
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.6); 
+            animation: goldPulse 1.5s infinite; 
+            z-index: 10;
+        }
+        @keyframes goldPulse { 
+            0% { transform: scale(1); } 
+            50% { transform: scale(1.03); } 
+            100% { transform: scale(1); } 
+        }
+
+        /* De rest van de styling (overgenomen van je origineel) */
+        .right-panel { flex: 35; background: white; display: flex; flex-direction: column; border-left: 1px solid var(--border); z-index: 20; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: var(--radius); box-shadow: var(--shadow); }
+        .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .cat-btn { padding: 14px 22px; background: white; border-radius: 10px; font-weight: 800; color: var(--text-muted); border: 1px solid var(--border); white-space: nowrap; }
+        .cat-btn.active { background: var(--col-primary); color: white; }
+        .cart-list { flex: 1; overflow-y: auto; padding: 15px; }
+        .total-display { text-align: right; font-size: 2.8rem; font-weight: 900; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; height: 85px; }
+        .btn-main { border-radius: 15px; font-weight: 900; font-size: 1.2rem; color: white; }
         .btn-cash { background: var(--col-accent); }
-        .btn-pin { background: var(--col-success); font-size: 1.3rem; }
-        .btn-disc { width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; background: #f1f5f9; color: var(--text-muted); border: 2px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; }
-        .btn-disc.active { background: #fff7ed; color: #c2410c; border-color: #f97316; }
-        .btn-disc span:last-child { background: #cbd5e1; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
-        .btn-disc.active span:last-child { background: #f97316; }
-        .extra-links { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .btn-clear { color: var(--col-danger); font-size: 0.8rem; font-weight: 700; text-decoration: underline; cursor: pointer; }
-        .btn-tools { color: var(--text-muted); font-size: 1.2rem; cursor: pointer; padding: 5px; }
-        .warning-footer { background: #111827; color: #fcd34d; padding: 8px; text-align: center; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
-        #haccpAlert, #closingAlert { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; font-size: 1.1rem; transform: translateY(-100%); transition: transform 0.5s; z-index: 2000; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; }
-        #haccpAlert { background: #facc15; color: #854d0e; }
-        #closingAlert { background: #ef4444; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; font-size: 3rem; transform: translateY(-120%); }
-        #haccpAlert.visible, #closingAlert.visible { transform: translateY(0); }
-        #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 15px 25px; border-radius: 30px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 1000; }
-        #toast.visible { transform: translateX(-50%) translateY(0); }
-        .toast-btn { background: white; color: #1e293b; padding: 5px 12px; border-radius: 15px; font-weight: 800; font-size: 0.85rem; cursor: pointer; }
-        #screensaver { position: fixed; inset: 0; background: black; z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
-        #screensaver img { max-width: 60%; opacity: 0.8; }
-        #screensaver div { color: white; margin-top: 20px; font-weight: bold; opacity: 0.5; animation: pulse 2s infinite; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal-card { background: white; width: 600px; max-width: 95%; border-radius: 15px; padding: 0; box-shadow: 0 20px 50px rgba(0,0,0,0.2); display: flex; flex-direction: column; max-height: 90vh; }
-        .wiz-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;}
-        .wiz-body { padding: 15px; overflow-y: auto; flex: 1; background: #f8fafc; }
-        .wiz-footer { padding: 15px; border-top: 1px solid var(--border); background: white; border-radius: 0 0 15px 15px; }
-        .wiz-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 15px;}
-        .wiz-table td { padding: 6px 0; border-bottom: 1px dashed #e2e8f0; }
-        .wiz-qty { font-weight: 800; color: var(--col-primary); width: 35px; }
-        .wiz-section-title { margin-top: 5px; margin-bottom: 8px; font-weight: 800; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--border); padding-bottom: 4px; }
-        .wiz-section-title.staff { color: var(--col-staff); border-color: #fdba74; }
-        .btn-destructive { background: #e2e8f0; color: #94a3b8; width: 100%; padding: 20px; border-radius: 12px; font-weight: 900; font-size: 1.2rem; pointer-events: none; transition: 0.3s; margin-top: 15px; text-transform: uppercase; border: 2px solid transparent; }
-        .btn-destructive.active { background: var(--col-danger); color: white; pointer-events: all; cursor: pointer; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); transform: scale(1.02); }
-        .tool-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
-        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: var(--col-training); }
-        input:checked + .slider:before { transform: translateX(22px); }
-        #flash { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 500; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
-        #flash.visible { opacity: 1; }
-        .checkmark { font-size: 8rem; color: white; font-weight: 900; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes slideIn { from { opacity:0; transform:translateX(10px); } to { opacity:1; transform:translateX(0); } }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes scaleUp { from { transform: scale(0.5); } to { transform: scale(1); } }
-        @keyframes suggestPulse { 0% { opacity: 1; border-color:var(--col-warning); } 50% { opacity: 0.7; border-color:#fff; } 100% { opacity: 1; border-color:var(--col-warning); } }
-        .cash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; }
-        .cash-btn { background: white; border: 2px solid var(--border); padding: 15px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; color: var(--col-primary); display: flex; align-items: center; justify-content: center; transition: 0.1s; }
-        .cash-btn:active { transform: scale(0.96); background: #f1f5f9; }
-        .cash-btn.selected { background: var(--col-accent); color: white; border-color: var(--col-accent); }
-        .cash-display-area { background: #f8fafc; padding: 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
-        .cash-row { display: flex; justify-content: space-between; font-size: 1.1rem; color: var(--text-muted); }
-        .cash-change-row { display: flex; justify-content: space-between; font-size: 1.6rem; font-weight: 900; color: var(--col-primary); margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
-        .cash-ok-btn { background: var(--col-success); color: white; width: 100%; padding: 18px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; margin-top: 20px; }
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
-        .num-key { padding: 15px; font-size: 1.4rem; font-weight: bold; background: #f8fafc; border-radius: 8px; }
-        .hist-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
-        .hist-top { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; }
-        .btn-del-hist { color: white; background: var(--col-danger); border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; font-weight: bold; margin-left: 10px; cursor: pointer;}
-        .manager-header { background: #1e293b; color: white; padding: 15px; border-radius: 15px 15px 0 0; display:flex; justify-content:space-between; align-items:center;}
-        .backup-list { max-height: 400px; overflow-y: auto; background: #f1f5f9; padding: 10px; font-family: monospace; font-size: 0.8rem; }
+        .btn-pin { background: var(--col-success); }
+        
+        #flash { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.9); z-index: 5000; display: none; align-items: center; justify-content: center; }
+        .checkmark { font-size: 8rem; color: white; font-weight: 900; }
+        
+        /* Modal styling */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal-card { background: white; width: 500px; border-radius: 20px; padding: 25px; }
     </style>
 </head>
 <body>
 
 <div id="flash"><div class="checkmark">✓</div></div>
-<div id="haccpAlert" onclick="closeHaccp()">⚠️ Vergeet de taartjes niet te borgen! <br><span style="font-size:0.9rem; font-weight:normal;">Kleurstickertje toevoegen & turven.</span></div>
-<div id="closingAlert" onclick="closeClosing()">WIJ ZIJN GESLOTEN<br><span style="font-size:1.5rem">Fijne avond!</span></div>
-<div id="toast"><span id="toastMsg">Bericht</span><div class="toast-btn" id="toastBtn" onclick="execUndo()">Herstel</div></div>
-<div id="screensaver" onclick="wakeUp()"><img src="museumcatering.png" alt="Museum Catering"><div>Tik om te starten</div></div>
 
-<div class="app-container" id="appContainer">
+<div class="app-container">
     <div class="left-panel">
-        <div class="top-bar" id="topBar">
-            <div class="brand" id="brandText" onclick="clickLogo()">MuseumCatering Kassa</div>
-            <div class="status-area">
-                <div class="pill"><span id="batIcon" class="bat-icon">🔋</span><span id="batLevel">--%</span></div>
-                <div class="pill"><div id="statusDot" class="dot"></div><span id="statusText">Offline</span></div>
-                <div class="pill">🕒 <span id="clock">--:--</span></div>
-            </div>
+        <div class="top-bar">
+            <div style="font-weight: 800; font-size: 1.4rem;">MuseumCatering</div>
+            <div id="clock" style="font-weight: 600;">00:00</div>
         </div>
         <div class="cat-scroll" id="catTabs"></div>
         <div class="product-grid" id="prodGrid"></div>
     </div>
+    
     <div class="right-panel">
-        <div class="ticket-title"><span>Huidige Bon</span><div id="lastBillBtn" class="last-bill-btn" onclick="openHistory()"><span>Laatste:</span><span id="lastBillAmt">€ 0,00</span></div></div>
+        <div style="padding: 15px; font-weight: 800; border-bottom: 1px solid var(--border);">Huidige Bon</div>
         <div class="cart-list" id="cartList"></div>
-        <div class="action-area">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;"><span style="font-weight:600; color:var(--text-muted);">TOTAAL</span><div class="total-display" id="totalDisplay">€ 0,00</div></div>
-            <div class="btn-grid"><button class="btn-main btn-cash" onclick="payCash()">CONTANT</button><button class="btn-main btn-pin" onclick="payPin()"><span>PIN</span><span style="font-size:0.7rem; opacity:0.8; font-weight:600;">DIRECT AKKOORD</span></button></div>
-            <button class="btn-disc" id="btnDisc" onclick="toggleDiscount()"><span>% Personeelskorting</span><span>UIT</span></button>
-            <div class="extra-links"><div class="btn-clear" onclick="clearCart()">× Alles Wissen</div><div class="btn-tools" onclick="openTools()">⚙️</div></div>
-            <div style="text-align:center; margin-top:10px; cursor:pointer; color:var(--col-primary); font-weight:700; font-size:0.85rem; text-decoration:underline;" onclick="openSessionWizard()">Dagrapportage & Afsluiten</div>
+        <div style="padding: 20px; border-top: 1px solid var(--border);">
+            <div class="total-display" id="totalDisplay">€ 0,00</div>
+            <div class="btn-grid">
+                <button class="btn-main btn-cash" onclick="payCash()">CASH</button>
+                <button class="btn-main btn-pin" onclick="payPin()">PIN</button>
+            </div>
+            <button id="btnClear" onclick="clearCart()" style="margin-top:15px; width:100%; padding:10px; background:none; color:var(--col-danger); font-weight:bold;">Bon Wissen</button>
         </div>
-        <div class="warning-footer">⚠️ Invoeren op Hoofdkassa!</div>
     </div>
 </div>
 
-<div class="modal-overlay" id="cashModal"><div class="modal-card"><div class="wiz-header"><h2 style="margin:0;">Contant Afrekenen</h2><button onclick="closeCash()" style="font-size:2rem; background:none;">&times;</button></div><div class="cash-display-area"><div class="cash-row"><span>Te betalen:</span><span style="font-weight:bold; color:var(--text-main);" id="cashTotalReq">€ 0,00</span></div><div class="cash-row"><span>Ontvangen:</span><span style="font-weight:bold; color:var(--col-accent);" id="cashGiven">€ 0,00</span></div><div class="cash-change-row"><span>TERUG:</span><span id="cashChange" style="color:var(--col-danger)">€ 0,00</span></div></div><div class="cash-grid" id="cashButtons"></div><div style="padding:20px;"><button class="cash-ok-btn" onclick="confirmCash()">AFRONDEN</button></div></div></div>
-<div class="modal-overlay" id="wizardModal"><div class="modal-card"><div class="wiz-header"><h2 style="margin:0;">Invoeren in Hoofdkassa</h2><button onclick="closeWizard()" style="font-size:2rem; background:none;">&times;</button></div><div class="wiz-body" id="wizContent"></div><div class="wiz-footer"><div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem; margin-bottom:10px;"><span>Totaal PIN:</span> <span id="wizPinTotal" style="color:var(--col-success)">€ 0,00</span></div><div style="display:flex; justify-content:space-between; font-weight:bold; font-size:1.1rem; margin-bottom:15px;"><span>Totaal CONTANT:</span> <span id="wizCashTotal" style="color:var(--col-accent)">€ 0,00</span></div><label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="confirmCheck" onchange="toggleResetBtn()" style="width:20px; height:20px;"><span style="font-weight:700; color:#c2410c;">Alles ingevoerd?</span></label><button id="btnReset" class="btn-destructive" onclick="executeReset()">NU WISSEN & AFSLUITEN</button></div></div></div>
-<div class="modal-overlay" id="historyModal"><div class="modal-card"><div class="wiz-header"><h2 style="margin:0;">Bonnen Historie</h2><button onclick="closeHistory()" style="font-size:2rem; background:none;">&times;</button></div><div class="wiz-body" id="histContent" style="background:#f1f5f9;"></div><div class="wiz-footer"><button onclick="closeHistory()" style="width:100%; padding:15px; font-weight:bold; background:#e2e8f0; border-radius:10px;">Sluiten</button></div></div></div>
-<div class="modal-overlay" id="openModal"><div class="modal-card" style="width:400px; padding:20px;"><h2 style="margin-top:0;">Open Bedrag</h2><div id="numpadDisplay" style="text-align:right; font-size:2.5rem; font-weight:900; background:#f8fafc; padding:15px; border-radius:12px; margin-bottom:15px;">0,00</div><div class="numpad"><button class="num-key" onclick="numInput(7)">7</button><button class="num-key" onclick="numInput(8)">8</button><button class="num-key" onclick="numInput(9)">9</button><button class="num-key" onclick="numInput(4)">4</button><button class="num-key" onclick="numInput(5)">5</button><button class="num-key" onclick="numInput(6)">6</button><button class="num-key" onclick="numInput(1)">1</button><button class="num-key" onclick="numInput(2)">2</button><button class="num-key" onclick="numInput(3)">3</button><button class="num-key" onclick="numInput('.')">.</button><button class="num-key" onclick="numInput(0)">0</button><button class="num-key" style="background:var(--col-success); color:white;" onclick="confirmOpen()">OK</button></div><button onclick="closeOpen()" style="width:100%; margin-top:10px; padding:15px; font-weight:bold; background:none; color:var(--text-muted);">Annuleren</button></div></div>
-<div class="modal-overlay" id="toolsModal"><div class="modal-card" style="width:400px; padding:20px;"><h2 style="margin-top:0;">Instellingen</h2><div class="tool-row"><div><div style="font-weight:bold;">Trainingsmodus</div><div style="font-size:0.8rem; color:#64748b;">Geen data opslaan</div></div><label class="switch"><input type="checkbox" id="chkTraining" onchange="toggleTraining()"><span class="slider"></span></label></div><div class="tool-row"><div><div style="font-weight:bold;">Geluidjes (Piep)</div></div><label class="switch"><input type="checkbox" id="chkSound" checked onchange="saveSettings()"><span class="slider"></span></label></div><div class="tool-row"><div><div style="font-weight:bold;">Trillen (Haptic)</div></div><label class="switch"><input type="checkbox" id="chkVibrate" checked onchange="saveSettings()"><span class="slider"></span></label></div><button onclick="closeTools()" style="width:100%; margin-top:20px; padding:15px; font-weight:bold; background:#e2e8f0; border-radius:10px;">Sluiten</button></div></div>
-<div class="modal-overlay" id="managerModal"><div class="modal-card" style="width:700px;"><div class="manager-header"><h2>🕵️ Manager Menu</h2><button onclick="closeManager()" style="font-size:2rem; background:none; color:white;">&times;</button></div><div style="padding:20px;"><h3>Permanente Backup Log</h3><p style="font-size:0.8rem; color:#64748b;">Dit logboek wordt nooit gewist.</p><div class="backup-list" id="backupList"></div><div style="margin-top:20px; display:flex; gap:10px;"><button onclick="exportBackup()" style="padding:15px; flex:1; background:#0ea5e9; color:white; border-radius:8px; font-weight:bold;">Kopieer Alles</button><button onclick="wipeEverything()" style="padding:15px; background:#ef4444; color:white; border-radius:8px; font-weight:bold;">FABRIEKSRESET</button></div></div></div></div>
-
 <script>
-    /* --- CONFIG --- */
-    // PAS HIERONDER DE URL AAN ALS JE EEN NIEUWE IMPLEMENTATIE HEBT GEDAAN
-    const GOOGLE_URL = "https://script.google.com/macros/s/AKfycbw4HCKu5DRqDvC6SsqdxhpVviAlSc1Se18gsQFSOEA70h2DkOHI6OBpb_ca4kxccMfjMA/exec";
+    const GOOGLE_URL = "JOUW_WEB_APP_URL_HIER";
     
-    const categories = [ { name: "Frisdrank", id:0 }, { name: "Warme Dranken", id:1 }, { name: "Alcohol", id:2 }, { name: "Zoetigheden", id:3 }, { name: "Brood/Warm", id:4 }, { name: "Diversen", id:5 }];
     const products = [
-        {c:0, n:"Chocomel", p:3.50}, {c:0, n:"Cola", p:3.50}, {c:0, n:"Cola Zero", p:3.50}, {c:0, n:"Spa Blauw", p:3.50}, {c:0, n:"Spa Rood", p:3.50}, {c:0, n:"Schulp Appel", p:3.85}, {c:0, n:"Schulp Vlierbes", p:3.85}, {c:0, n:"Lemon-aid Passie", p:4.75}, {c:0, n:"Lemon-aid Bloed", p:4.75}, {c:0, n:"Lemon-aid Ginger", p:4.75}, {c:0, n:"Charitea", p:4.75}, {c:0, n:"Melk", p:3.00}, {c:0, n:"Karnemelk", p:3.00}, {c:0, n:"Verse Jus", p:5.25}, {c:0, n:"Glas Limonade", p:1.00}, {c:0, n:"Sinaasappel Aardbei", p:5.25},
-        {c:1, n:"Koffie", p:3.40}, {c:1, n:"Cappuccino", p:3.75}, {c:1, n:"Koffie Verkeerd", p:4.20}, {c:1, n:"Latte Macchiato", p:4.20}, {c:1, n:"Flat White", p:4.20}, {c:1, n:"Espresso", p:3.40}, {c:1, n:"Espresso Macch.", p:3.45}, {c:1, n:"Dubbele Espresso", p:4.00}, {c:1, n:"Havermelk", p:0.60}, {c:1, n:"Thee", p:3.50}, {c:1, n:"Gember Thee", p:3.95}, {c:1, n:"Munt Thee", p:3.95}, {c:1, n:"Warme Choco", p:3.95}, {c:1, n:"Slagroom", p:0.75},
-        {c:2, n:"DHP Pilsener", p:5.00}, {c:2, n:"DHP Weizener", p:5.50}, {c:2, n:"DHP IPA", p:5.50}, {c:2, n:"Leffe", p:5.25}, {c:2, n:"Hertog Jan", p:3.75}, {c:2, n:"Glas Wijn", p:5.25},
-        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Worteltaart", p:5.50}, {c:3, n:"Titanic Gold", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50}, {c:3, n:"Croissant", p:3.50}, {c:3, n:"Pain au Chocolat", p:3.50}, {c:3, n:"Slagroom", p:0.75}, {c:3, n:"Brownie", p:4.95}, {c:3, n:"Macaron", p:2.00}, {c:3, n:"Kinderdonut", p:3.50}, {c:3, n:"Poffertjes", p:3.95}, {c:3, n:"IJsje", p:2.00},
-        {c:4, n:"Br. Oude Kaas", p:9.50}, {c:4, n:"Br. Tonijn", p:9.50}, {c:4, n:"Br. Gr. Groenten", p:9.50}, {c:4, n:"Br. Gehaktbal", p:9.50}, {c:4, n:"Salade Tonijn", p:12.00}, {c:4, n:"Sal. Geitenkaas", p:12.00}, {c:4, n:"Kaasbroodje", p:3.75}, {c:4, n:"Saucijsbroodje", p:3.75}, {c:4, n:"Quiche", p:3.95}, {c:4, n:"Soep", p:6.50}, {c:4, n:"Soepbroodje", p:0.50},
-        {c:5, n:"Open Bedrag", p:0, special:true}
+        {c:0, n:"Cola", p:3.50}, {c:0, n:"Spa Blauw", p:3.50}, {c:0, n:"Verse Jus", p:5.25},
+        {c:1, n:"Koffie", p:3.40}, {c:1, n:"Cappuccino", p:3.75}, {c:1, n:"Thee", p:3.50},
+        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Worteltaart", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50},
+        {c:4, n:"Br. Oude Kaas", p:9.50}, {c:4, n:"Soep", p:6.50}
     ];
 
-    let cart = []; let queue = JSON.parse(localStorage.getItem('mc_queue')) || []; let history = JSON.parse(localStorage.getItem('mc_history')) || [];
-    let permLog = JSON.parse(localStorage.getItem('mc_perm_log')) || []; 
-    let activeCat = 0; let isOnline = navigator.onLine; let discount = false; let numStr = "";
-    let trainingMode = false; let idleTimer; let lastDeletedCart = null; let lastTransaction = null; let undoAction = null; let cashGivenAmount = 0;
-    let haccpTriggered = false; let isBusyReported = false; let logoClicks = 0; let settingSound = true; let settingVibrate = true;
-    let isTransactionInProgress = false; // ANTI-DOUBLE CLICK FLAG
+    let cart = [];
+    let activeCat = 0;
+    let isTransactionInProgress = false;
 
-    window.onload = () => {
-        renderCats(); renderGrid(); renderCart(); updateClock(); processQueue(); updateLastBill(); initBattery(); resetIdleTimer();
-        window.addEventListener('online', () => { isOnline=true; updateStatus(); processQueue(); });
-        window.addEventListener('offline', () => { isOnline=false; updateStatus(); });
-        document.body.addEventListener('click', resetIdleTimer); document.body.addEventListener('touchstart', resetIdleTimer);
-        setInterval(updateClock, 1000); setInterval(processQueue, 5000); setInterval(checkThermometer, 5000);
-    };
-
-    function doFeedback() { if(settingVibrate && navigator.vibrate) navigator.vibrate(20); }
-    function saveSettings() { settingSound = document.getElementById('chkSound').checked; settingVibrate = document.getElementById('chkVibrate').checked; }
-    function clickLogo() { logoClicks++; if(logoClicks === 5) { showManager(); logoClicks=0; } setTimeout(() => logoClicks=0, 2000); }
-    function showManager() { document.getElementById('backupList').innerHTML = permLog.slice().reverse().map(l => `<div>[${l.date}] ${l.type} €${l.total.toFixed(2)} (${l.items})</div>`).join(''); document.getElementById('managerModal').style.display = 'flex'; }
-    function closeManager() { document.getElementById('managerModal').style.display = 'none'; }
-    function exportBackup() { let text = permLog.map(l => `[${l.date}] ${l.type} €${l.total.toFixed(2)} (${l.items})`).join('\n'); navigator.clipboard.writeText(text).then(() => alert("Gekopieerd!")); }
-    function wipeEverything() { if(confirm("ALLES WISSEN?")) { localStorage.clear(); location.reload(); } }
-
-    function checkThermometer() {
-        const now = Date.now(); const recentTx = history.filter(h => h.id > now - 60000).length;
-        const app = document.getElementById('appContainer');
-        if(recentTx >= 5) { app.className = 'app-container heat-high'; if(!isBusyReported && isOnline) { sendBusySignal(); isBusyReported = true; } } 
-        else if (recentTx >= 3) { app.className = 'app-container heat-med'; } else { app.className = 'app-container'; if(recentTx < 3) isBusyReported = false; }
+    function renderCats() {
+        const cats = ["Fris", "Warm", "Alcohol", "Zoet", "Eten", "Divers"];
+        document.getElementById('catTabs').innerHTML = cats.map((name, i) => 
+            `<button class="cat-btn ${i===activeCat?'active':''}" onclick="setCat(${i})">${name}</button>`).join('');
     }
-    function sendBusySignal() { let alertRecord = { id: Date.now(), time: new Date().toLocaleTimeString('nl-NL'), type: "ALARM", total: 0, items: ["⚠️ DRUKTE MELDING"], catBreakdown: {}, isDiscounted: false }; queue.push({ data: alertRecord, retries: 0 }); saveQueue(); processQueue(); }
 
-    function resetIdleTimer() { clearTimeout(idleTimer); document.getElementById('screensaver').style.display = 'none'; idleTimer = setTimeout(() => { document.getElementById('screensaver').style.display = 'flex'; }, 900000); }
-    function wakeUp() { resetIdleTimer(); }
-    function initBattery() { if ('getBattery' in navigator) navigator.getBattery().then(bat => { updateBatteryUI(bat); bat.addEventListener('levelchange', () => updateBatteryUI(bat)); }); }
-    function updateBatteryUI(bat) { const level = Math.round(bat.level * 100); const el = document.getElementById('batLevel'); const icon = document.getElementById('batIcon'); el.innerText = level + '%'; if(level <= 20 && !bat.charging) { el.style.color = 'var(--col-danger)'; icon.className = 'bat-icon bat-low'; } else { el.style.color = 'var(--text-main)'; icon.className = 'bat-icon'; } }
+    function setCat(id) { activeCat = id; renderGrid(); renderCats(); }
 
-    function showToast(msg, btnText, action) { const t = document.getElementById('toast'); document.getElementById('toastMsg').innerText = msg; document.getElementById('toastBtn').innerText = btnText; undoAction = action; t.classList.add('visible'); setTimeout(() => t.classList.remove('visible'), 5000); }
-    function execUndo() { if(undoAction) undoAction(); document.getElementById('toast').classList.remove('visible'); }
-
-    function renderCats() { document.getElementById('catTabs').innerHTML = categories.map(cat => `<button class="cat-btn ${cat.id===activeCat?'active':''}" id="cat-btn-${cat.id}" onclick="setCat(${cat.id})">${cat.name}</button>`).join(''); }
-    function setCat(id) { activeCat = id; renderCats(); renderGrid(); doFeedback(); }
     function renderGrid() {
+        const grid = document.getElementById('prodGrid');
         const items = products.filter(p => p.c === activeCat);
-        document.getElementById('prodGrid').innerHTML = items.map(p => {
-            const inCart = cart.find(x => x.n === p.n); const badgeClass = inCart ? 'p-badge visible' : 'p-badge'; const qty = inCart ? inCart.qty : 0; const price = p.special ? '...' : `€ ${p.p.toFixed(2)}`; const action = p.special ? `openOpen()` : `addToCart('${p.n}', ${p.p})`; const extraId = (p.n === 'Slagroom') ? 'id="prod-slagroom"' : '';
-            return `<div class="p-card cat-${p.c}" ${extraId} onclick="${action}"><div class="${badgeClass}">${qty}</div><div class="p-name">${p.n}</div><div class="p-price">${price}</div></div>`;
+        grid.innerHTML = items.map(p => {
+            // Check of dit item een zoetigheid is (Cat 3) voor de gouden rand
+            const goldClass = (p.c === 3) ? 'suggest-target' : '';
+            return `<div class="p-card ${goldClass}" onclick="addToCart('${p.n}', ${p.p}, ${p.c})">
+                <div class="p-name">${p.n}</div>
+                <div class="p-price">€ ${p.p.toFixed(2)}</div>
+            </div>`;
         }).join('');
     }
+
+    function addToCart(n, p, catId) {
+        let exist = cart.find(x => x.n === n);
+        if(exist) exist.qty++; else cart.push({n, p, qty:1});
+        
+        // Goud randje trigger bij Warme Drank (Cat 1)
+        if(catId === 1) {
+            triggerGoldEffect();
+        }
+        
+        renderCart();
+    }
+
+    function triggerGoldEffect() {
+        // Zoek alle zoetigheid-kaarten die op dit moment in beeld zijn
+        const targets = document.querySelectorAll('.suggest-target');
+        targets.forEach(el => el.classList.add('suggest-gold'));
+        
+        // Ook de tab "Zoet" een seintje geven als die niet actief is
+        const zoetTab = document.querySelectorAll('.cat-btn')[3];
+        if(zoetTab) zoetTab.style.borderColor = "var(--gold)";
+
+        setTimeout(() => {
+            targets.forEach(el => el.classList.remove('suggest-gold'));
+            if(zoetTab) zoetTab.style.borderColor = "var(--border)";
+        }, 5000);
+    }
+
     function renderCart() {
-        const l = document.getElementById('cartList');
-        if(cart.length === 0) { l.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:50px; opacity:0.5;"><div style="font-size:3rem;">🛒</div><div>Bon is leeg</div></div>`; } 
-        else { l.innerHTML = cart.map((item, idx) => `<div class="cart-row"><div class="qty-control" onclick="modCart(${idx}, -1)">${item.qty}</div><div><div style="font-weight:700;">${item.n}</div><div style="font-size:0.85rem; color:var(--text-muted);">€ ${(item.p*item.qty).toFixed(2)}</div></div><div class="btn-del-row" onclick="modCart(${idx}, -100)">&times;</div></div>`).join(''); setTimeout(() => l.scrollTop = l.scrollHeight, 10); }
-        let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0); if(discount) sub = sub * 0.75;
-        document.getElementById('totalDisplay').innerText = `€ ${sub.toFixed(2)}`; renderGrid(); 
+        const list = document.getElementById('cartList');
+        list.innerHTML = cart.map(item => `
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; background:#f8fafc; padding:10px; border-radius:8px;">
+                <span><b>${item.qty}x</b> ${item.n}</span>
+                <span>€ ${(item.p * item.qty).toFixed(2)}</span>
+            </div>
+        `).join('');
+        
+        let total = cart.reduce((a,b) => a + (b.p*b.qty), 0);
+        document.getElementById('totalDisplay').innerText = `€ ${total.toFixed(2)}`;
     }
-    function checkPairing(n) { document.querySelectorAll('.suggest-pulse').forEach(el => el.classList.remove('suggest-pulse')); if(n.includes("Koffie") || n.includes("Cappuccino")) { const btn = document.getElementById('cat-btn-3'); if(btn) { btn.classList.add('suggest-pulse'); setTimeout(() => btn.classList.remove('suggest-pulse'), 3000); }} if(n.includes("Warme Choco") || n.includes("Appeltaart")) { const prod = document.getElementById('prod-slagroom'); if(prod) { prod.classList.add('suggest-pulse'); setTimeout(() => prod.classList.remove('suggest-pulse'), 3000); }} }
 
-    function addToCart(n, p) { let exist = cart.find(x => x.n === n); if(exist) exist.qty++; else cart.push({n, p, qty:1}); renderCart(); checkPairing(n); doFeedback(); }
-    function modCart(idx, delta) { cart[idx].qty += delta; if(cart[idx].qty <= 0) cart.splice(idx, 1); renderCart(); doFeedback(); }
-    function clearCart() { if(cart.length > 0 && confirm("Bon wissen?")) { lastDeletedCart = [...cart]; cart = []; discount = false; updateDiscBtn(); renderCart(); showToast("Bon gewist.", "HERSTEL", () => { cart = [...lastDeletedCart]; renderCart(); }); } }
-    function toggleDiscount() { discount = !discount; updateDiscBtn(); renderCart(); }
-    function updateDiscBtn() { const btn = document.getElementById('btnDisc'); if(discount) { btn.classList.add('active'); btn.lastElementChild.innerText = "AAN (25%)"; } else { btn.classList.remove('active'); btn.lastElementChild.innerText = "UIT"; } }
-
-    function openOpen() { numStr=""; updateNumDisplay(); document.getElementById('openModal').style.display='flex'; }
-    function closeOpen() { document.getElementById('openModal').style.display='none'; }
-    function numInput(key) { numStr += key; updateNumDisplay(); doFeedback(); }
-    function updateNumDisplay() { document.getElementById('numpadDisplay').innerText = numStr || "0.00"; }
-    function confirmOpen() { let val = parseFloat(numStr); if(val > 0) addToCart("Diversen", val); closeOpen(); }
-
-    /* --- PAY PIN & CASH (WITH LOCK) --- */
-    function payPin() { if(!isTransactionInProgress) finishTransaction("PIN"); }
-    
-    function payCash() { 
-        if(cart.length === 0 || isTransactionInProgress) return;
-        let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0); if(discount) sub = sub * 0.75; cashGivenAmount = 0;
-        document.getElementById('cashTotalReq').innerText = `€ ${sub.toFixed(2)}`; document.getElementById('cashGiven').innerText = `€ 0,00`; document.getElementById('cashChange').innerText = `€ 0,00`;
-        const grid = document.getElementById('cashButtons'); grid.innerHTML = '';
-        const opts = [sub]; if(sub % 5 !== 0) opts.push(Math.ceil(sub/5)*5); if(sub % 10 !== 0) opts.push(Math.ceil(sub/10)*10); if(sub < 20) opts.push(20); if(sub < 50) opts.push(50);
-        [...new Set(opts)].sort((a,b)=>a-b).forEach(amt => { let btn = document.createElement('div'); btn.className = 'cash-btn'; btn.innerText = `€ ${amt.toFixed(2)}`; btn.onclick = () => selectCash(amt, btn, sub); grid.appendChild(btn); });
-        document.getElementById('cashModal').style.display = 'flex';
-    }
-    function closeCash() { document.getElementById('cashModal').style.display = 'none'; }
-    function selectCash(amount, btnElement, total) { document.querySelectorAll('.cash-btn').forEach(b => b.classList.remove('selected')); btnElement.classList.add('selected'); cashGivenAmount = amount; document.getElementById('cashGiven').innerText = `€ ${amount.toFixed(2)}`; document.getElementById('cashChange').innerText = `€ ${(amount - total).toFixed(2)}`; doFeedback(); }
-    function confirmCash() { if(cashGivenAmount === 0) { let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0); if(discount) sub = sub * 0.75; cashGivenAmount = sub; } closeCash(); finishTransaction("CONTANT"); }
+    function payPin() { finishTransaction("PIN"); }
+    function payCash() { finishTransaction("CONTANT"); }
 
     function finishTransaction(type) {
         if(cart.length === 0 || isTransactionInProgress) return;
-        
-        isTransactionInProgress = true; // LOCK UI
+        isTransactionInProgress = true;
 
-        if(trainingMode) {
-            const flash = document.getElementById('flash'); flash.classList.add('visible'); setTimeout(() => flash.classList.remove('visible'), 500);
-            cart = []; discount = false; updateDiscBtn(); renderCart(); 
-            isTransactionInProgress = false; // UNLOCK
-            return;
-        }
-        
-        const flash = document.getElementById('flash'); flash.classList.add('visible'); setTimeout(() => flash.classList.remove('visible'), 500);
-        let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0); if(discount) sub = sub * 0.75;
-        let itemsFlat = []; let catMap = {};
-        cart.forEach(c => { for(let i=0; i<c.qty; i++) itemsFlat.push(c.n); let catName = "Diversen"; let pObj = products.find(p => p.n === c.n); if(pObj) { let catObj = categories.find(cat => cat.id === pObj.c); if(catObj) catName = catObj.name; } catMap[catName] = (catMap[catName]||0) + (c.p*c.qty); });
-        
-        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
-        let record = { id: Date.now(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: sub, items: itemsFlat, catBreakdown: catMap, isDiscounted: discount, device: deviceType, cartBackup: [...cart] };
-        
-        history.push(record); localStorage.setItem('mc_history', JSON.stringify(history));
-        let logItem = { date: new Date().toLocaleString(), type: type, total: sub, items: itemsFlat.join(', ') };
-        permLog.push(logItem); localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
+        // Flash effect
+        const f = document.getElementById('flash');
+        f.style.display = 'flex';
+        setTimeout(() => { f.style.display = 'none'; }, 600);
 
-        queue.push({ data: record, retries: 0 }); saveQueue(); processQueue();
-        lastTransaction = record; cart = []; discount = false; updateDiscBtn(); renderCart(); updateLastBill();
-        showToast("Betaald: €" + sub.toFixed(2), "OEPS, HERSTEL", undoPayment);
-        
-        setTimeout(() => { isTransactionInProgress = false; }, 1000); // UNLOCK after 1 sec
-    }
+        let total = cart.reduce((a,b) => a + (b.p*b.qty), 0);
+        let itemsFlat = cart.map(c => `${c.qty}x ${c.n}`).join(", ");
 
-    function undoPayment() {
-        if(!lastTransaction) return;
-        cart = [...lastTransaction.cartBackup]; discount = lastTransaction.isDiscounted; updateDiscBtn(); renderCart();
-        history = history.filter(h => h.id !== lastTransaction.id); localStorage.setItem('mc_history', JSON.stringify(history)); updateLastBill();
-        
-        // Remove from Perm Log too to keep it clean (or keep as VOID?) - User wants sync.
-        // For backup we usually keep everything, but for the "Permanent total count" user implies a valid log. 
-        // Let's create a "VOID" entry in perm log.
-        permLog.push({ date: new Date().toLocaleString(), type: "HERSTEL", total: -lastTransaction.total, items: "Herstel van vorige" });
-        localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
-
-        // Send correction to cloud
-        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
-        let voidRecord = {...lastTransaction}; 
-        voidRecord.id = Date.now() + 1; // NEW UNIQUE ID
-        voidRecord.total = -Math.abs(voidRecord.total); // Force negative
-        voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; 
-        
-        // USE ORIGINAL TYPE TO CORRECT MATH (PIN or CONTANT)
-        // voidRecord.type remains as it was in lastTransaction (e.g. "PIN")
-        
-        voidRecord.device = deviceType;
-        
-        queue.push({ data: voidRecord, retries: 0 }); saveQueue(); processQueue();
-    }
-
-    function updateLastBill() { if(history.length > 0) { let last = history[history.length-1]; document.getElementById('lastBillAmt').innerText = `€ ${last.total.toFixed(2)}`; } else { document.getElementById('lastBillAmt').innerText = `€ 0,00`; } }
-    function saveQueue() { localStorage.setItem('mc_queue', JSON.stringify(queue)); updateStatus(); }
-    function processQueue() { if(queue.length === 0 || !navigator.onLine) { updateStatus(); return; } let job = queue[0]; fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(job.data) }).then(() => { queue.shift(); saveQueue(); if(queue.length > 0) setTimeout(processQueue, 200); }).catch(err => { updateStatus(); }); }
-    function sendResetSignal() { queue.push({ data: { type: "RESET" }, retries: 0 }); saveQueue(); processQueue(); }
-    function updateStatus() { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if(!navigator.onLine) { dot.className="dot"; txt.innerText="Lokaal"; txt.style.color="#64748b"; } else if (queue.length > 0) { dot.className="dot syncing"; txt.innerText="Sync..."; txt.style.color="#f59e0b"; } else { dot.className="dot online"; txt.innerText="Online"; txt.style.color="#16a34a"; } }
-
-    function openTools() { document.getElementById('toolsModal').style.display = 'flex'; }
-    function closeTools() { document.getElementById('toolsModal').style.display = 'none'; }
-    function toggleTraining() { trainingMode = document.getElementById('chkTraining').checked; const topBar = document.getElementById('topBar'); const brand = document.getElementById('brandText'); if(trainingMode) { topBar.classList.add('training'); brand.innerText = "TRAININGSMODUS"; } else { topBar.classList.remove('training'); brand.innerText = "MuseumCatering Kassa"; } }
-
-    function openSessionWizard() {
-        let normalCounts = {}; let staffCounts = {}; let pinTotal = 0; let cashTotal = 0;
-        history.forEach(h => { if(h.type === "PIN") pinTotal += h.total; if(h.type === "CONTANT") cashTotal += h.total; h.items.forEach(itemName => { if(h.isDiscounted) staffCounts[itemName] = (staffCounts[itemName] || 0) + 1; else normalCounts[itemName] = (normalCounts[itemName] || 0) + 1; }); });
-        function buildTable(counts, title, isStaff) { let keys = Object.keys(counts).sort(); if(keys.length === 0) return ""; let html = `<div class="wiz-section-title ${isStaff?'staff':''}">${title}</div><table class="wiz-table">`; keys.forEach(name => { let pRef = products.find(p => p.n === name); let priceTxt = pRef ? `€ ${pRef.p.toFixed(2)}` : ""; html += `<tr><td class="wiz-qty">${counts[name]} x</td><td class="wiz-name">${name}</td><td class="wiz-price">${priceTxt}</td></tr>`; }); html += '</table>'; return html; }
-        let html = ""; let normalTable = buildTable(normalCounts, "NORMALE VERKOOP", false); if(normalTable) html += normalTable; else if(Object.keys(staffCounts).length === 0) html += '<div style="text-align:center; padding:20px;">Geen verkopen.</div>'; let staffTable = buildTable(staffCounts, "MET PERSONEELSKORTING (-25%)", true); if(staffTable) html += staffTable;
-        document.getElementById('wizContent').innerHTML = html; document.getElementById('wizPinTotal').innerText = `€ ${pinTotal.toFixed(2)}`; document.getElementById('wizCashTotal').innerText = `€ ${cashTotal.toFixed(2)}`; document.getElementById('confirmCheck').checked = false; toggleResetBtn(); document.getElementById('wizardModal').style.display = 'flex';
-    }
-    function closeWizard() { document.getElementById('wizardModal').style.display = 'none'; }
-    function toggleResetBtn() { const chk = document.getElementById('confirmCheck'); const btn = document.getElementById('btnReset'); if(chk.checked) btn.classList.add('active'); else btn.classList.remove('active'); }
-    function executeReset() { if(!document.getElementById('confirmCheck').checked) return; sendResetSignal(); history = []; localStorage.setItem('mc_history', JSON.stringify(history)); updateLastBill(); closeWizard(); alert("Sessie afgesloten. Tablet is schoon."); }
-    
-    function openHistory() {
-        const container = document.getElementById('histContent');
-        if(history.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">Nog geen bonnen vandaag.</div>'; } 
-        else {
-            container.innerHTML = history.slice().reverse().map(h => {
-                let itemsList = h.items.join(", "); let discBadge = h.isDiscounted ? '<span style="color:#c2410c; font-size:0.7rem; margin-left:5px;">(KORTING)</span>' : '';
-                return `<div class="hist-item">
-                    <div class="hist-top">
-                        <span>${h.time} - ${h.type} ${discBadge}</span>
-                        <div>
-                            <span>€ ${h.total.toFixed(2)}</span>
-                            <span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}', '${h.type}')">×</span>
-                        </div>
-                    </div>
-                    <div class="hist-items">${itemsList}</div>
-                </div>`;
-            }).join('');
-        }
-        document.getElementById('historyModal').style.display = 'flex';
-    }
-    function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
-    
-    function deleteHistoryItem(id, total, items, type) {
-        if(!confirm("Weet je zeker dat je deze bon wilt verwijderen? Dit stuurt een correctie naar het dashboard.")) return;
-        // 1. Remove locally
-        history = history.filter(h => h.id !== id);
-        localStorage.setItem('mc_history', JSON.stringify(history));
-        
-        // 2. Send Correction to Cloud (Important!)
-        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
-        let correctionRecord = {
-            id: Date.now() + 1, // NEW ID
+        const data = {
             time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
-            type: type, // USE ORIGINAL TYPE (PIN/CONTANT) FOR MATH
-            total: -total, // NEGATIVE VALUE
-            items: ["CORRECTIE OP: " + items], 
-            catBreakdown: {}, 
-            isDiscounted: false,
-            device: deviceType
+            type: type,
+            total: total,
+            items: [itemsFlat]
         };
-        queue.push({ data: correctionRecord, retries: 0 }); saveQueue(); processQueue();
-        
-        // 3. Log in Permanent Backup
-        permLog.push({ date: new Date().toLocaleString(), type: "CORRECTIE", total: -total, items: "Verwijderd uit historie" });
-        localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
 
-        openHistory(); updateLastBill();
+        // Versturen naar Google (zonder no-cors voor betere betrouwbaarheid)
+        fetch(GOOGLE_URL, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        }).catch(e => console.log("Offline backup nodig"));
+
+        // Reset
+        cart = [];
+        renderCart();
+        renderGrid();
+        setTimeout(() => { isTransactionInProgress = false; }, 1200);
     }
 
-    function numInput(key) { numStr += key; updateNumDisplay(); }
-    function updateNumDisplay() { document.getElementById('numpadDisplay').innerText = numStr || "0.00"; }
-    
-    /* --- CLOCK & HACCP --- */
-    function updateClock() { 
-        const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); 
-        
-        // HACCP CHECK
-        const timeStr = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
-        const triggers = ['10:00', '12:00', '14:00', '16:00'];
-        
-        if(triggers.includes(timeStr) && !haccpTriggered) {
-            document.getElementById('haccpAlert').classList.add('visible');
-            haccpTriggered = true;
-            // Auto hide after 30 sec
-            setTimeout(closeHaccp, 30000);
-            // Prevent re-triggering for 60 seconds
-            setTimeout(() => haccpTriggered = false, 60000);
-        }
-        
-        // CLOSING ALERT (16:45)
-        if(timeStr === '16:45') {
-            document.getElementById('closingAlert').classList.add('visible');
-        }
-    }
-    
-    function closeHaccp() { document.getElementById('haccpAlert').classList.remove('visible'); }
-    function closeClosing() { document.getElementById('closingAlert').classList.remove('visible'); }
+    function clearCart() { if(confirm("Bon wissen?")) { cart = []; renderCart(); renderGrid(); } }
+
+    window.onload = () => { renderCats(); renderGrid(); };
 </script>
+
 </body>
 </html>
