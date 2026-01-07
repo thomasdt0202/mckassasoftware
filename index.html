@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering POS Pro</title>
+    <title>MuseumCatering Kassa V2.1</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -16,158 +16,116 @@
 
     <style>
         :root {
-            --bg-body: #f1f5f9;
-            --bg-panel: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --primary: #0f172a;
-            --accent: #2563eb;
-            --success: #16a34a;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --gold: #fbbf24;
-            --radius: 12px;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --trans-fast: 0.15s ease;
+            --bg-body: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b;
+            --border: #e2e8f0; --primary: #0f172a; --accent: #2563eb; --success: #16a34a;
+            --warning: #f59e0b; --danger: #ef4444; --gold: #fbbf24; --radius: 12px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* --- BASE RESET --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
         button { border: none; outline: none; font-family: inherit; cursor: pointer; touch-action: manipulation; }
         
-        /* --- LAYOUT --- */
-        .app-container { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; transition: box-shadow 0.3s; }
-        .app-container.busy-level-1 { box-shadow: inset 0 0 30px rgba(245, 158, 11, 0.2); }
-        .app-container.busy-level-2 { box-shadow: inset 0 0 50px rgba(239, 68, 68, 0.4); border: 3px solid var(--danger); }
-
+        .app-container { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
         .left-panel { flex: 66; display: flex; flex-direction: column; padding: 16px; gap: 16px; }
         .right-panel { flex: 34; background: var(--bg-panel); display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.05); z-index: 20; }
 
-        /* --- TOP BAR --- */
+        /* TOP BAR */
         .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: var(--shadow); height: 64px; }
         .top-bar.training-mode { background: #0ea5e9; color: white; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; }
-        
         .status-indicators { display: flex; gap: 8px; }
-        .status-pill { background: var(--bg-body); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--text-muted); border: 1px solid transparent; }
+        .status-pill { background: var(--bg-body); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
         .top-bar.training-mode .status-pill { background: rgba(255,255,255,0.2); color: white; }
-        
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
         .dot.ok { background: var(--success); box-shadow: 0 0 8px var(--success); }
         .dot.sync { background: var(--warning); animation: blink 1s infinite; }
         .dot.err { background: var(--danger); }
 
-        /* --- CATEGORIES --- */
+        /* GRID */
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-        .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; transition: var(--trans-fast); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-        .cat-btn:active { transform: scale(0.96); }
-
-        /* --- PRODUCT GRID --- */
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
-        .p-card { background: var(--bg-panel); border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: var(--trans-fast); }
-        .p-card:active { transform: scale(0.94); background: #e2e8f0; }
         
-        /* Category Colors */
-        .cat-style-0 { border-bottom: 4px solid #bfdbfe; } /* Fris */
-        .cat-style-1 { border-bottom: 4px solid #fed7aa; } /* Warm */
-        .cat-style-2 { border-bottom: 4px solid #e9d5ff; } /* Alcohol */
-        .cat-style-3 { border-bottom: 4px solid #fbcfe8; } /* Zoet */
-        .cat-style-4 { border-bottom: 4px solid #bbf7d0; } /* Eten */
-        .cat-style-5 { border-bottom: 4px solid #e2e8f0; } /* Divers */
-
-        .p-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; color: var(--text-main); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
+        .p-card { background: var(--bg-panel); border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.1s; }
+        .p-card:active { transform: scale(0.96); background: #e2e8f0; }
+        .p-card.cat-style-0 { border-bottom: 4px solid #bfdbfe; }
+        .p-card.cat-style-1 { border-bottom: 4px solid #fed7aa; }
+        .p-card.cat-style-2 { border-bottom: 4px solid #e9d5ff; }
+        .p-card.cat-style-3 { border-bottom: 4px solid #fbcfe8; }
+        .p-card.cat-style-4 { border-bottom: 4px solid #bbf7d0; }
+        .p-card.cat-style-5 { border-bottom: 4px solid #e2e8f0; }
+        .p-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
         .p-price { font-weight: 600; color: var(--text-muted); align-self: flex-end; font-size: 0.9rem; }
-        .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
-
-        /* Gold Effect */
         .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3) !important; animation: pulseGold 1.5s infinite; z-index: 10; }
-        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
 
-        /* --- CART --- */
+        /* CART & ACTIONS */
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
         .ticket-title { font-weight: 800; font-size: 1.1rem; }
         .last-bill { font-size: 0.8rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 8px; background: #eff6ff; border-radius: 6px; }
-        
         .cart-items { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
         .cart-row { display: grid; grid-template-columns: 40px 1fr auto 32px; gap: 10px; align-items: center; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); animation: slideIn 0.2s; }
-        .qty-box { background: #eff6ff; color: var(--accent); font-weight: 800; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
-        .item-info { display: flex; flex-direction: column; }
-        .item-name { font-weight: 700; font-size: 0.9rem; }
-        .item-sub { font-size: 0.8rem; color: var(--text-muted); }
+        .qty-box { background: #eff6ff; color: var(--accent); font-weight: 800; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
         .del-btn { color: var(--danger); font-size: 1.4rem; cursor: pointer; display: flex; justify-content: center; }
-
-        /* --- ACTIONS --- */
-        .action-panel { background: white; padding: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
-        .total-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-        .total-label { font-size: 1rem; font-weight: 600; color: var(--text-muted); }
-        .total-amount { font-size: 2.5rem; font-weight: 900; line-height: 1; color: var(--primary); }
-
-        .pay-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; height: 75px; }
-        .btn-pay { border-radius: var(--radius); font-weight: 800; font-size: 1.2rem; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; transition: transform 0.1s; }
-        .btn-pay:active { transform: scale(0.97); }
-        .btn-pay:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        .bg-cash { background: var(--accent); }
-        .bg-pin { background: var(--success); }
         
+        .action-panel { background: white; padding: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
+        .total-amount { font-size: 2.5rem; font-weight: 900; line-height: 1; color: var(--primary); text-align: right; margin-bottom: 5px;}
+        .pay-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; height: 75px; }
+        .btn-pay { border-radius: var(--radius); font-weight: 800; font-size: 1.2rem; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.2; }
+        .bg-cash { background: var(--accent); } .bg-pin { background: var(--success); }
         .btn-opt { width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; background: var(--bg-body); color: var(--text-muted); border: 1px solid var(--border); display: flex; justify-content: space-between; }
         .btn-opt.active { background: #fff7ed; color: #c2410c; border-color: #f97316; }
+        
+        .report-btn { width:100%; text-align:center; padding:10px; font-weight:700; color:var(--primary); text-decoration:underline; cursor:pointer; font-size:0.9rem; }
+        .footer-tools { display: flex; justify-content: space-between; margin-top:5px; font-size:0.8rem; color:var(--text-muted);}
 
-        .footer-tools { display: flex; justify-content: space-between; align-items: center; margin-top: 5px; }
-        .link-danger { color: var(--danger); font-weight: 700; font-size: 0.85rem; text-decoration: underline; cursor: pointer; }
-
-        /* --- MODALS & OVERLAYS --- */
+        /* MODALS */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
         .modal-backdrop.open { display: flex; }
-        .modal-content { background: white; width: 600px; max-width: 95%; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; animation: popUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
+        .modal-content { background: white; width: 600px; max-width: 95%; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 90vh; }
         .modal-header { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
-        .modal-title { font-size: 1.25rem; font-weight: 800; margin: 0; }
         .modal-body { padding: 20px; overflow-y: auto; }
 
-        /* Success Flash */
-        #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        /* REPORT TABLE STYLES */
+        .report-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; margin-bottom: 20px; }
+        .report-table td { padding: 8px 0; border-bottom: 1px dashed #e2e8f0; }
+        .report-qty { font-weight: 800; color: var(--primary); width: 40px; }
+        .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
+        .report-h.staff { color: #c2410c; border-color: #fdba74; }
+
+        /* ALERTS & FLASH */
+        #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         #flash-overlay.visible { opacity: 1; }
-        .checkmark { font-size: 8rem; color: white; transform: scale(0.5); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        #flash-overlay.visible .checkmark { transform: scale(1); }
-
-        /* Notifications */
-        .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .alert-haccp { background: var(--warning); color: #78350f; }
-        .alert-closing { background: var(--danger); color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; font-size: 3rem; transform: translateY(-120%); }
+        .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
         .alert-banner.show { transform: translateY(0); }
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; }
 
-        /* Utilities */
+        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         @keyframes slideIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
         @keyframes blink { 50% { opacity: 0.4; } }
-        @keyframes popUp { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-        
-        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; transition: 0.1s; }
-        .num-key:active { background: #e2e8f0; transform: scale(0.95); }
-
     </style>
 </head>
 <body>
 
-<div id="flash-overlay"><div class="checkmark">✓</div></div>
-<div id="haccp-alert" class="alert-banner alert-haccp" onclick="App.ui.hideHaccp()">⚠️ Taartjes Borgen! <br><small>Check temperatuur & lijsten</small></div>
-<div id="closing-alert" class="alert-banner alert-closing" onclick="App.ui.hideClosing()">WIJ ZIJN GESLOTEN<br><small style="font-size:1.5rem">Fijne avond!</small></div>
+<div id="flash-overlay"><div style="font-size:8rem; color:white;">✓</div></div>
+<div id="haccp-alert" class="alert-banner" style="background:#f59e0b; color:#78350f;" onclick="this.classList.remove('show')">⚠️ Taartjes Borgen!</div>
+<div id="closing-alert" class="alert-banner" style="background:#ef4444; color:white; height:100vh; display:flex; flex-direction:column; justify-content:center; font-size:3rem;" onclick="this.classList.remove('show')">GESLOTEN</div>
 
 <div id="modal-cash" class="modal-backdrop">
     <div class="modal-content" style="width: 500px;">
-        <div class="modal-header"><h3>Contant Afrekenen</h3><button onclick="App.ui.closeModal('modal-cash')" style="font-size:2rem; background:none;">&times;</button></div>
+        <div class="modal-header"><h3>Contant</h3><button onclick="App.ui.closeModal('modal-cash')" style="font-size:2rem; background:none;">&times;</button></div>
         <div class="modal-body">
-            <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:20px;">
-                <div style="display:flex; justify-content:space-between; font-size:1.1rem; color:var(--text-muted);"><span>Te betalen:</span><span id="cash-req" style="font-weight:bold; color:var(--primary)">€ 0,00</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:1.1rem; color:var(--text-muted); margin-top:5px;"><span>Ontvangen:</span><span id="cash-given" style="font-weight:bold; color:var(--accent)">€ 0,00</span></div>
-                <div style="border-top:2px dashed #cbd5e1; margin-top:15px; padding-top:15px; display:flex; justify-content:space-between; font-size:1.8rem; font-weight:900; color:var(--danger);"><span>TERUG:</span><span id="cash-change">€ 0,00</span></div>
+            <div style="background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:20px; font-size:1.2rem;">
+                <div style="display:flex; justify-content:space-between;"><span>Te betalen:</span><span id="cash-req" style="font-weight:bold;">€ 0,00</span></div>
+                <div style="display:flex; justify-content:space-between; margin-top:10px;"><span>Ontvangen:</span><span id="cash-given" style="font-weight:bold; color:#2563eb;">€ 0,00</span></div>
+                <div style="border-top:2px dashed #ccc; margin-top:15px; padding-top:15px; display:flex; justify-content:space-between; font-weight:900; color:#ef4444;"><span>TERUG:</span><span id="cash-change">€ 0,00</span></div>
             </div>
             <div id="cash-options" style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;"></div>
-            <button onclick="App.payment.confirmCash()" style="width:100%; background:var(--success); color:white; padding:20px; border-radius:12px; font-weight:800; font-size:1.3rem; margin-top:20px;">AFRONDEN</button>
+            <button onclick="App.payment.confirmCash()" style="width:100%; background:#16a34a; color:white; padding:20px; border-radius:12px; font-weight:800; margin-top:20px;">AFRONDEN</button>
         </div>
     </div>
 </div>
@@ -176,47 +134,47 @@
     <div class="modal-content" style="width: 400px;">
         <div class="modal-header"><h3>Open Bedrag</h3><button onclick="App.ui.closeModal('modal-open')" style="font-size:2rem; background:none;">&times;</button></div>
         <div class="modal-body">
-            <div id="numpad-display" style="text-align:right; font-size:2.5rem; font-weight:900; background:#f8fafc; padding:20px; border-radius:12px; margin-bottom:10px;">0,00</div>
+            <div id="numpad-display" style="text-align:right; font-size:2.5rem; font-weight:900; background:#f8fafc; padding:20px; border-radius:12px;">0,00</div>
             <div class="numpad" id="numpad-keys"></div>
         </div>
     </div>
 </div>
 
-<div id="modal-history" class="modal-backdrop">
-    <div class="modal-content" style="width: 700px;">
-        <div class="modal-header"><h3>Bon Historie</h3><button onclick="App.ui.closeModal('modal-history')" style="font-size:2rem; background:none;">&times;</button></div>
-        <div class="modal-body" id="history-list" style="background:#f1f5f9; min-height:300px;"></div>
+<div id="modal-report" class="modal-backdrop">
+    <div class="modal-content" style="width: 600px;">
+        <div class="modal-header" style="background:#f8fafc;">
+            <h3>Dagrapportage (Hoofdkassa)</h3>
+            <button onclick="App.ui.closeModal('modal-report')" style="font-size:2rem; background:none;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="report-content"></div>
+            <hr style="margin:20px 0;">
+            <div style="background:#f1f5f9; padding:15px; border-radius:8px; margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;"><span>Totaal PIN:</span><span id="rep-pin" style="color:#16a34a">€ 0,00</span></div>
+                <div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Totaal CASH:</span><span id="rep-cash" style="color:#2563eb">€ 0,00</span></div>
+            </div>
+            <button onclick="App.manager.resetSession()" style="width:100%; padding:20px; background:#ef4444; color:white; font-weight:bold; border-radius:10px;">SESSIE AFSLUITEN & WISSEN</button>
+        </div>
     </div>
 </div>
 
-<div id="modal-manager" class="modal-backdrop">
-    <div class="modal-content">
-        <div class="modal-header" style="background:#1e293b; color:white;"><h3>🕵️ Manager</h3><button onclick="App.ui.closeModal('modal-manager')" style="font-size:2rem; background:none; color:white;">&times;</button></div>
-        <div class="modal-body">
-            <h4>Sessie Afsluiten</h4>
-            <div id="session-stats" style="margin-bottom:20px;"></div>
-            <button onclick="App.manager.resetSession()" style="width:100%; padding:20px; background:var(--danger); color:white; font-weight:bold; border-radius:10px;">NU AFSLUITEN & WISSEN</button>
-            <hr style="margin:20px 0;">
-            <h4>Tools</h4>
-            <label style="display:flex; align-items:center; gap:10px; padding:10px; background:#f1f5f9; border-radius:8px; margin-bottom:10px;">
-                <input type="checkbox" id="chk-training" onchange="App.settings.toggleTraining()" style="width:20px; height:20px;">
-                <span style="font-weight:bold;">Trainingsmodus (Geen opslag)</span>
-            </label>
-        </div>
+<div id="modal-history" class="modal-backdrop">
+    <div class="modal-content" style="width: 600px;">
+        <div class="modal-header"><h3>Historie</h3><button onclick="App.ui.closeModal('modal-history')" style="font-size:2rem; background:none;">&times;</button></div>
+        <div class="modal-body" id="history-list" style="background:#f1f5f9; min-height:300px;"></div>
     </div>
 </div>
 
 <div class="app-container" id="app-wrapper">
     <div class="left-panel">
         <div class="top-bar" id="top-bar">
-            <div class="brand" onclick="App.manager.secretKnock()">MuseumCatering</div>
+            <div class="brand">MuseumCatering</div>
             <div class="status-indicators">
                 <div class="status-pill">🔋 <span id="bat-level">--%</span></div>
                 <div class="status-pill"><div class="dot ok" id="net-dot"></div> <span id="net-text">Online</span></div>
                 <div class="status-pill">🕒 <span id="clock">00:00</span></div>
             </div>
         </div>
-        
         <div class="cat-scroll" id="cat-tabs"></div>
         <div class="product-grid" id="prod-grid"></div>
     </div>
@@ -226,43 +184,30 @@
             <div class="ticket-title">Huidige Bon</div>
             <div class="last-bill" onclick="App.ui.openHistory()">Laatste: <span id="last-bill-amt">€ 0,00</span></div>
         </div>
-        
         <div class="cart-items" id="cart-list"></div>
-        
         <div class="action-panel">
-            <div class="total-row">
-                <span class="total-label">TOTAAL</span>
-                <span class="total-amount" id="total-display">€ 0,00</span>
-            </div>
-            
+            <div class="total-amount" id="total-display">€ 0,00</div>
             <div class="pay-grid">
                 <button class="btn-pay bg-cash" id="btn-cash" onclick="App.payment.startCash()">CONTANT</button>
-                <button class="btn-pay bg-pin" id="btn-pin" onclick="App.payment.payPin()">PIN DIRECT</button>
+                <button class="btn-pay bg-pin" id="btn-pin" onclick="App.payment.payPin()">PIN</button>
             </div>
-            
             <button class="btn-opt" id="btn-disc" onclick="App.cart.toggleDiscount()">
-                <span>% Personeelskorting</span>
-                <span id="disc-status" style="font-weight:800; color:var(--text-main);">UIT</span>
+                <span>% Personeelskorting</span><span id="disc-status">UIT</span>
             </button>
             
+            <div class="report-btn" onclick="App.manager.openReport()">Dagrapportage & Afsluiten</div>
+
             <div class="footer-tools">
-                <span class="link-danger" onclick="App.cart.clear()">× Bon Wissen</span>
-                <span onclick="App.ui.openManager()" style="font-size:1.2rem; cursor:pointer; color:var(--text-muted);">⚙️</span>
+                <span style="color:#ef4444; cursor:pointer; font-weight:bold;" onclick="App.cart.clear()">× Bon Wissen</span>
+                <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="chk-training" onchange="App.settings.toggleTraining()"> Training</label>
             </div>
         </div>
-        <div style="background:#111827; color:#fcd34d; padding:8px; text-align:center; font-weight:700; font-size:0.75rem; letter-spacing:1px;">⚠️ ALLEEN INVOEREN</div>
     </div>
 </div>
 
 <script>
-/**
- * MUSEUMCATERING POS ENGINE V2.0
- * Architectuur: Modular Namespace
- * Focus: Stabiliteit, Anti-Dubbelingen, Data Integriteit
- */
-
 const CONFIG = {
-    // PLAK HIER JE NIEUWE URL UIT DE VORIGE STAP:
+    // VUL JOUW GOOGLE SCRIPT URL HIER IN:
     GOOGLE_URL: "https://script.google.com/macros/s/AKfycbw4HCKu5DRqDvC6SsqdxhpVviAlSc1Se18gsQFSOEA70h2DkOHI6OBpb_ca4kxccMfjMA/exec",
     CATS: ["Frisdrank", "Warme Dranken", "Alcohol", "Zoetigheden", "Brood/Warm", "Diversen"],
     PRODUCTS: [
@@ -275,84 +220,38 @@ const CONFIG = {
     ]
 };
 
-// --- STATE MANAGEMENT ---
 const State = {
     cart: [],
     queue: JSON.parse(localStorage.getItem('mc_queue')) || [],
     history: JSON.parse(localStorage.getItem('mc_history')) || [],
-    activeCat: 0,
-    discount: false,
-    training: false,
-    isProcessing: false, // CRUCIAAL: Voorkomt dubbel klikken
-    numpadVal: "",
-    lastCashGiven: 0,
-    knockCount: 0
+    activeCat: 0, discount: false, training: false, isProcessing: false, numpadVal: "", lastCashGiven: 0
 };
 
-// --- UTILS ---
 const Utils = {
     formatPrice: (num) => `€ ${num.toFixed(2).replace('.', ',')}`,
     uuid: () => Date.now().toString(36) + Math.random().toString(36).substr(2),
-    vibrate: () => { if(navigator.vibrate) navigator.vibrate(15); },
-    beep: () => { /* Sound implementatie indien nodig */ },
-    
-    // Veilig rekenen (voorkomt 0.300000004 errors)
     round: (num) => Math.round(num * 100) / 100
 };
 
-// --- CORE MODULES ---
-
 const App = {
     init: () => {
-        App.ui.renderCats();
-        App.ui.renderGrid();
-        App.ui.renderCart();
-        App.ui.updateClock();
-        App.ui.initNumpad();
-        App.net.startQueueProcessor();
-        App.net.initBattery();
-        
+        App.ui.renderCats(); App.ui.renderGrid(); App.ui.renderCart();
+        App.ui.updateClock(); App.ui.initNumpad(); App.net.startQueueProcessor();
+        App.net.initBattery(); App.ui.updateLastBill();
         setInterval(App.ui.updateClock, 1000);
-        setInterval(App.ui.checkBusyLevel, 5000); // Thermometer
     },
 
     cart: {
         add: (name, price, catIdx) => {
             if(State.isProcessing) return;
             let item = State.cart.find(x => x.n === name);
-            if(item) item.q++;
-            else State.cart.push({ n:name, p:price, q:1, c:catIdx });
-            
-            // Gold Effect Trigger (Bij Warme Drank -> Zoet Highlight)
+            if(item) item.q++; else State.cart.push({ n:name, p:price, q:1, c:catIdx });
             if(catIdx === 1) App.ui.triggerGold();
-            
-            App.ui.renderCart();
-            App.ui.renderGrid(); // Update badges
-            Utils.vibrate();
+            App.ui.renderCart(); App.ui.renderGrid();
         },
-        remove: (idx) => {
-            if(State.cart[idx].q > 1) State.cart[idx].q--;
-            else State.cart.splice(idx, 1);
-            App.ui.renderCart();
-            App.ui.renderGrid();
-        },
-        deleteRow: (idx) => {
-            State.cart.splice(idx, 1);
-            App.ui.renderCart();
-            App.ui.renderGrid();
-        },
-        clear: () => {
-            if(confirm("Bon wissen?")) {
-                State.cart = [];
-                State.discount = false;
-                App.ui.renderCart();
-                App.ui.renderGrid();
-            }
-        },
-        toggleDiscount: () => {
-            State.discount = !State.discount;
-            App.ui.renderCart();
-        },
+        remove: (idx) => { if(State.cart[idx].q > 1) State.cart[idx].q--; else State.cart.splice(idx, 1); App.ui.renderCart(); App.ui.renderGrid(); },
+        clear: () => { if(confirm("Bon wissen?")) { State.cart = []; State.discount=false; App.ui.renderCart(); App.ui.renderGrid(); } },
+        toggleDiscount: () => { State.discount = !State.discount; App.ui.renderCart(); },
         calculateTotal: () => {
             let sub = State.cart.reduce((a, b) => a + (b.p * b.q), 0);
             return State.discount ? Utils.round(sub * 0.75) : Utils.round(sub);
@@ -361,27 +260,14 @@ const App = {
 
     payment: {
         startCash: () => {
-            if(State.cart.length === 0 || State.isProcessing) return;
+            if(State.cart.length===0 || State.isProcessing) return;
             const total = App.cart.calculateTotal();
-            
             document.getElementById('cash-req').innerText = Utils.formatPrice(total);
-            document.getElementById('cash-given').innerText = "€ 0,00";
-            document.getElementById('cash-change').innerText = "€ 0,00";
-            
-            // Genereer knoppen
-            const opts = [total];
-            if(total % 5 !== 0) opts.push(Math.ceil(total/5)*5);
-            if(total % 10 !== 0) opts.push(Math.ceil(total/10)*10);
-            if(total < 20) opts.push(20);
-            if(total < 50) opts.push(50);
-            
-            const grid = document.getElementById('cash-options');
-            grid.innerHTML = [...new Set(opts)].sort((a,b)=>a-b).map(amt => 
-                `<button class="btn-pay" style="background:white; color:var(--primary); border:2px solid var(--border); font-size:1rem; height:60px;" 
-                onclick="App.payment.selectCash(${amt}, ${total})">€ ${amt.toFixed(2)}</button>`
+            const opts = [total]; if(total%5!==0) opts.push(Math.ceil(total/5)*5); if(total%10!==0) opts.push(Math.ceil(total/10)*10);
+            if(total<20) opts.push(20); if(total<50) opts.push(50);
+            document.getElementById('cash-options').innerHTML = [...new Set(opts)].sort((a,b)=>a-b).map(amt => 
+                `<button class="btn-pay" style="background:white; color:#0f172a; border:2px solid #e2e8f0; height:60px;" onclick="App.payment.selectCash(${amt}, ${total})">€ ${amt.toFixed(2)}</button>`
             ).join('');
-            
-            State.lastCashGiven = 0;
             App.ui.openModal('modal-cash');
         },
         selectCash: (amt, total) => {
@@ -389,365 +275,191 @@ const App = {
             document.getElementById('cash-given').innerText = Utils.formatPrice(amt);
             document.getElementById('cash-change').innerText = Utils.formatPrice(amt - total);
         },
-        confirmCash: () => {
-            if(State.lastCashGiven === 0) State.lastCashGiven = App.cart.calculateTotal(); // Pas gepast
-            App.ui.closeModal('modal-cash');
-            App.payment.process("CONTANT");
-        },
-        payPin: () => {
-            if(State.cart.length === 0 || State.isProcessing) return;
-            App.payment.process("PIN");
-        },
+        confirmCash: () => { if(State.lastCashGiven===0) State.lastCashGiven=App.cart.calculateTotal(); App.ui.closeModal('modal-cash'); App.payment.process("CONTANT"); },
+        payPin: () => { if(State.cart.length>0 && !State.isProcessing) App.payment.process("PIN"); },
         process: (type) => {
-            // 1. LOCK UI (Anti-Dubbel)
-            State.isProcessing = true;
-            App.ui.setLoading(true);
-
-            if(State.training) {
-                App.ui.flashSuccess();
-                State.cart = [];
-                State.discount = false;
-                App.ui.renderCart();
-                App.ui.renderGrid();
-                State.isProcessing = false;
-                App.ui.setLoading(false);
-                return;
-            }
-
-            // 2. DATA PREP
+            State.isProcessing = true; App.ui.setLoading(true);
+            if(State.training) { App.payment.finish(true); return; }
+            
             const total = App.cart.calculateTotal();
             const itemsFlat = [];
             const breakdown = {};
-            
             State.cart.forEach(item => {
-                // Item lijst voor display
                 itemsFlat.push(`${item.q}x ${item.n}`);
-                
-                // Categorie breakdown voor Journaal (Backend matcht op Naam)
                 const catName = CONFIG.CATS[item.c] || "Diversen";
                 if(!breakdown[catName]) breakdown[catName] = 0;
                 breakdown[catName] += (item.p * item.q);
             });
-            
-            // Korting verrekenen in breakdown
-            if(State.discount) {
-                for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k] * 0.75);
-            } else {
-                for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k]);
-            }
+            if(State.discount) for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k] * 0.75);
+            else for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k]);
 
-            const record = {
-                id: Utils.uuid(),
-                time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
-                type: type,
-                total: total,
-                items: itemsFlat,
-                catBreakdown: breakdown, // Dit is wat code.gs nodig heeft voor kolommen F-K
-                isDiscounted: State.discount,
-                device: "Tablet V2"
-            };
-
-            // 3. STORE & SYNC
-            State.history.push(record);
-            localStorage.setItem('mc_history', JSON.stringify(State.history));
-            
+            const record = { id: Utils.uuid(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: total, items: itemsFlat, catBreakdown: breakdown, isDiscounted: State.discount, device: "Tablet V2" };
+            State.history.push(record); localStorage.setItem('mc_history', JSON.stringify(State.history));
             App.net.addToQueue(record);
-            
-            // 4. RESET & FEEDBACK
-            State.cart = [];
-            State.discount = false;
-            App.ui.flashSuccess();
-            App.ui.renderCart();
-            App.ui.renderGrid();
-            App.ui.updateLastBill();
-            
-            // Unlock na animatie
-            setTimeout(() => { 
-                State.isProcessing = false; 
-                App.ui.setLoading(false);
-            }, 1000);
-        }
-    },
-
-    net: {
-        addToQueue: (data) => {
-            State.queue.push({ data: data, retries: 0 });
-            localStorage.setItem('mc_queue', JSON.stringify(State.queue));
-            App.net.processQueue();
+            App.payment.finish(false);
         },
-        processQueue: () => {
-            if(State.queue.length === 0 || !navigator.onLine) {
-                App.ui.updateNetStatus();
-                return;
-            }
-            
-            const job = State.queue[0];
-            
-            // GEBRUIK NO-CORS (Snelheid) MAAR MET CLIENT-SIDE DEDUPE
-            fetch(CONFIG.GOOGLE_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(job.data)
-            })
-            .then(() => {
-                // We nemen aan dat het gelukt is bij no-cors
-                State.queue.shift();
-                localStorage.setItem('mc_queue', JSON.stringify(State.queue));
-                if(State.queue.length > 0) setTimeout(App.net.processQueue, 300);
-                App.ui.updateNetStatus();
-            })
-            .catch(err => {
-                console.error("Sync fail", err);
-                App.ui.updateNetStatus();
-            });
-        },
-        startQueueProcessor: () => {
-            window.addEventListener('online', () => { App.net.processQueue(); App.ui.updateNetStatus(); });
-            window.addEventListener('offline', App.ui.updateNetStatus);
-            setInterval(App.net.processQueue, 10000); // Fail-safe elke 10 sec
-        },
-        initBattery: () => {
-            if(navigator.getBattery) {
-                navigator.getBattery().then(bat => {
-                    const update = () => document.getElementById('bat-level').innerText = Math.round(bat.level*100) + "%";
-                    update(); bat.addEventListener('levelchange', update);
-                });
-            }
-        }
-    },
-
-    ui: {
-        renderCats: () => {
-            const html = CONFIG.CATS.map((name, i) => 
-                `<button class="cat-btn ${i===State.activeCat ? 'active' : ''}" onclick="App.ui.setCat(${i})">${name}</button>`
-            ).join('');
-            document.getElementById('cat-tabs').innerHTML = html;
-        },
-        setCat: (i) => {
-            State.activeCat = i;
-            App.ui.renderCats();
-            App.ui.renderGrid();
-        },
-        renderGrid: () => {
-            const items = CONFIG.PRODUCTS.filter(p => p.c === State.activeCat);
-            document.getElementById('prod-grid').innerHTML = items.map(p => {
-                const inCart = State.cart.find(x => x.n === p.n);
-                const badge = inCart ? `<div class="p-badge visible">${inCart.q}</div>` : `<div class="p-badge"></div>`;
-                const action = p.special ? `App.ui.openNumpad()` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
-                const price = p.special ? "..." : Utils.formatPrice(p.p);
-                // Extra class voor Gold Effect Target (Zoetigheden = Cat 3)
-                const extraClass = (p.c === 3) ? 'suggest-target' : '';
-                
-                return `<div class="p-card cat-style-${p.c} ${extraClass}" onclick="${action}">
-                    ${badge}
-                    <div class="p-name">${p.n}</div>
-                    <div class="p-price">${price}</div>
-                </div>`;
-            }).join('');
-        },
-        renderCart: () => {
-            const list = document.getElementById('cart-list');
-            if(State.cart.length === 0) {
-                list.innerHTML = `<div style="text-align:center; color:#cbd5e1; margin-top:50px;">🛒<br>Bon is leeg</div>`;
-            } else {
-                list.innerHTML = State.cart.map((item, i) => `
-                    <div class="cart-row">
-                        <div class="qty-box" onclick="App.cart.add('${item.n}', ${item.p}, ${item.c})">${item.q}</div>
-                        <div class="item-info">
-                            <span class="item-name">${item.n}</span>
-                            <span class="item-sub">${Utils.formatPrice(item.p)}</span>
-                        </div>
-                        <div style="font-weight:700;">${Utils.formatPrice(item.p * item.q)}</div>
-                        <div class="del-btn" onclick="App.cart.remove(${i})">&minus;</div>
-                    </div>
-                `).join('');
-                setTimeout(() => list.scrollTop = list.scrollHeight, 10);
-            }
-            
-            // Totalen
-            const total = App.cart.calculateTotal();
-            document.getElementById('total-display').innerText = Utils.formatPrice(total);
-            
-            // Knoppen Status
-            const disabled = State.cart.length === 0 || State.isProcessing;
-            document.getElementById('btn-cash').disabled = disabled;
-            document.getElementById('btn-pin').disabled = disabled;
-            
-            // Discount UI
-            const btnDisc = document.getElementById('btn-disc');
-            const lblDisc = document.getElementById('disc-status');
-            if(State.discount) {
-                btnDisc.classList.add('active');
-                lblDisc.innerText = "AAN (25%)";
-            } else {
-                btnDisc.classList.remove('active');
-                lblDisc.innerText = "UIT";
-            }
-        },
-        triggerGold: () => {
-            const targets = document.querySelectorAll('.suggest-target');
-            targets.forEach(el => el.classList.add('suggest-gold'));
-            setTimeout(() => targets.forEach(el => el.classList.remove('suggest-gold')), 5000);
-        },
-        setLoading: (busy) => {
-            const wrap = document.getElementById('app-wrapper');
-            if(busy) wrap.style.opacity = "0.7"; else wrap.style.opacity = "1";
-        },
-        flashSuccess: () => {
-            const el = document.getElementById('flash-overlay');
-            el.classList.add('visible');
-            setTimeout(() => el.classList.remove('visible'), 600);
-        },
-        openModal: (id) => document.getElementById(id).classList.add('open'),
-        closeModal: (id) => document.getElementById(id).classList.remove('open'),
-        
-        // --- NUMPAD LOGIC ---
-        openNumpad: () => { State.numpadVal = ""; App.ui.updateNumpad(); App.ui.openModal('modal-open'); },
-        initNumpad: () => {
-            const keys = [7,8,9,4,5,6,1,2,3,'.',0,'OK'];
-            document.getElementById('numpad-keys').innerHTML = keys.map(k => {
-                const bg = k === 'OK' ? 'var(--success)' : '#f1f5f9';
-                const col = k === 'OK' ? 'white' : 'var(--primary)';
-                const action = k === 'OK' ? 'App.ui.confirmNumpad()' : `App.ui.typeNumpad('${k}')`;
-                return `<button class="num-key" style="background:${bg}; color:${col}" onclick="${action}">${k}</button>`;
-            }).join('');
-        },
-        typeNumpad: (char) => {
-            State.numpadVal += char;
-            App.ui.updateNumpad();
-        },
-        updateNumpad: () => {
-            document.getElementById('numpad-display').innerText = State.numpadVal || "0.00";
-        },
-        confirmNumpad: () => {
-            let clean = State.numpadVal.replace(',', '.');
-            let val = parseFloat(clean);
-            if(val > 0) App.cart.add("Diversen", val, 5);
-            App.ui.closeModal('modal-open');
-        },
-
-        // --- CLOCK & ALERTS ---
-        updateClock: () => {
-            const now = new Date();
-            const str = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
-            document.getElementById('clock').innerText = str;
-            
-            // HACCP logic (10, 12, 14, 16 uur)
-            const h = now.getHours(); const m = now.getMinutes(); const s = now.getSeconds();
-            if([10,12,14,16].includes(h) && m===0 && s===0) {
-                document.getElementById('haccp-alert').classList.add('show');
-                setTimeout(App.ui.hideHaccp, 30000);
-            }
-            if(h===16 && m===45 && s===0) document.getElementById('closing-alert').classList.add('show');
-        },
-        hideHaccp: () => document.getElementById('haccp-alert').classList.remove('show'),
-        hideClosing: () => document.getElementById('closing-alert').classList.remove('show'),
-        
-        // --- HISTORY & MANAGER ---
-        updateLastBill: () => {
-            if(State.history.length === 0) return;
-            const last = State.history[State.history.length-1];
-            document.getElementById('last-bill-amt').innerText = Utils.formatPrice(last.total);
-        },
-        openHistory: () => {
-            const container = document.getElementById('history-list');
-            if(State.history.length === 0) {
-                container.innerHTML = "<div style='padding:20px; text-align:center'>Geen historie</div>";
-            } else {
-                container.innerHTML = State.history.slice().reverse().map(h => `
-                    <div style="background:white; padding:12px; margin-bottom:8px; border-radius:8px; border:1px solid var(--border);">
-                        <div style="display:flex; justify-content:space-between; font-weight:bold;">
-                            <span>${h.time} (${h.type})</span>
-                            <span>${Utils.formatPrice(h.total)}</span>
-                        </div>
-                        <div style="font-size:0.85rem; color:var(--text-muted); margin:4px 0;">${h.items.join(', ')}</div>
-                        <button onclick="App.manager.undo(${h.id}, ${h.total}, '${h.type}', '${h.items}')" style="background:#fee2e2; color:#b91c1c; font-size:0.75rem; padding:4px 8px; border-radius:4px; font-weight:bold;">CORRECTIE / UNDO</button>
-                    </div>
-                `).join('');
-            }
-            App.ui.openModal('modal-history');
-        },
-        openManager: () => {
-            // Sessie samenvatting
-            let pin=0, cash=0;
-            State.history.forEach(h => { if(h.type==="PIN") pin+=h.total; else cash+=h.total; });
-            document.getElementById('session-stats').innerHTML = `
-                <div style="display:flex; justify-content:space-between; font-size:1.2rem; margin-bottom:5px;"><span>Totaal PIN:</span><span style="color:var(--success)">${Utils.formatPrice(pin)}</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Totaal CASH:</span><span style="color:var(--accent)">${Utils.formatPrice(cash)}</span></div>
-            `;
-            App.ui.openModal('modal-manager');
-        },
-        updateNetStatus: () => {
-            const dot = document.getElementById('net-dot');
-            const txt = document.getElementById('net-text');
-            if(!navigator.onLine) { dot.className="dot err"; txt.innerText="Offline"; }
-            else if(State.queue.length > 0) { dot.className="dot sync"; txt.innerText="Syncing..."; }
-            else { dot.className="dot ok"; txt.innerText="Online"; }
-        },
-        checkBusyLevel: () => {
-            // Thermometer functie
-            const now = Date.now();
-            const recent = State.history.filter(h => String(h.id).length > 10 ? true : false).filter(h => (now - parseInt(h.id.substring(0,8), 36)) < 60000).length; // Ruwe schatting obv ID of timestamp
-            // Simpelere methode: check timestamps in history
-            // (Niet kritiek voor operatie, overgeslagen voor stabiliteit)
+        finish: (isTraining) => {
+            State.cart = []; State.discount = false;
+            document.getElementById('flash-overlay').classList.add('visible');
+            setTimeout(() => document.getElementById('flash-overlay').classList.remove('visible'), 600);
+            App.ui.renderCart(); App.ui.renderGrid(); App.ui.updateLastBill();
+            setTimeout(() => { State.isProcessing = false; App.ui.setLoading(false); }, 1000);
         }
     },
 
     manager: {
-        undo: (id, total, type, items) => {
-            if(!confirm("Bon crediteren? Dit stuurt een negatief bedrag naar de administratie.")) return;
-            
-            // Verwijder lokaal
-            State.history = State.history.filter(h => h.id !== id);
-            localStorage.setItem('mc_history', JSON.stringify(State.history));
-            
-            // Stuur correctie
-            const record = {
-                id: Utils.uuid(),
-                time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
-                type: type,
-                total: -Math.abs(total), // Forceer negatief
-                items: ["CORRECTIE: " + items],
-                catBreakdown: {}, // Leeg, of specifieke tegenboeking indien gewenst (hier generiek)
-                isDiscounted: false,
-                device: "Tablet Correctie"
+        openReport: () => {
+            // Aggregatie Logic (Turven)
+            let counts = {}; let staffCounts = {};
+            let pinTotal = 0; let cashTotal = 0;
+
+            State.history.forEach(tx => {
+                if(tx.type === "PIN") pinTotal += tx.total; else cashTotal += tx.total;
+                
+                // Veilig items parsen, zelfs als het array of string is
+                let itemsArr = Array.isArray(tx.items) ? tx.items : [tx.items];
+                itemsArr.forEach(itemStr => {
+                    let parts = String(itemStr).split('x ');
+                    let q = parseInt(parts[0]) || 1;
+                    let name = parts[1] || itemStr;
+                    
+                    if(tx.isDiscounted) staffCounts[name] = (staffCounts[name] || 0) + q;
+                    else counts[name] = (counts[name] || 0) + q;
+                });
+            });
+
+            // HTML Bouwen
+            let html = "";
+            const buildTable = (data, title, isStaff) => {
+                let keys = Object.keys(data).sort();
+                if(keys.length === 0) return "";
+                let tbl = `<div class="report-h ${isStaff?'staff':''}">${title}</div><table class="report-table">`;
+                keys.forEach(k => {
+                    tbl += `<tr><td class="report-qty">${data[k]}</td><td>${k}</td></tr>`;
+                });
+                return tbl + "</table>";
             };
+
+            html += buildTable(counts, "Normale Verkoop", false);
+            html += buildTable(staffCounts, "Personeel / Korting", true);
             
-            App.net.addToQueue(record);
-            App.ui.openHistory(); // Refresh list
-            App.ui.updateLastBill();
+            if(html === "") html = "<div style='text-align:center; padding:20px; color:#94a3b8'>Nog geen verkopen vandaag.</div>";
+
+            document.getElementById('report-content').innerHTML = html;
+            document.getElementById('rep-pin').innerText = Utils.formatPrice(pinTotal);
+            document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
+            App.ui.openModal('modal-report');
         },
         resetSession: () => {
-            if(confirm("Sessie afsluiten en alle historie wissen?")) {
-                State.history = [];
-                localStorage.setItem('mc_history', JSON.stringify([]));
-                // Eventueel reset signaal naar server
+            if(confirm("Sessie afsluiten? Dit wist de lijst op de tablet.\nZorg dat je alles hebt ingevoerd!")) {
+                State.history = []; localStorage.setItem('mc_history', JSON.stringify([]));
                 location.reload();
+            }
+        },
+        undo: (id) => {
+            if(!confirm("Bon crediteren? Dit haalt de omzet én BTW uit het systeem.")) return;
+            
+            // Zoek de bon (ID kan tekst of nummer zijn, dus we gebruiken losse vergelijking)
+            let tx = State.history.find(h => h.id == id);
+            
+            if(tx) {
+                // 1. Maak de Categorieën Negatief (CRUCIAAL VOOR JOURNAAL)
+                let negativeCats = {};
+                if (tx.catBreakdown) {
+                    for (let key in tx.catBreakdown) {
+                        negativeCats[key] = -Math.abs(tx.catBreakdown[key]);
+                    }
+                }
+
+                // 2. Correctie record bouwen
+                let cor = {
+                    ...tx,
+                    id: Utils.uuid(), 
+                    total: -Math.abs(tx.total), // Forceer negatief totaal
+                    items: ["CORRECTIE OP: " + (Array.isArray(tx.items) ? tx.items.join(", ") : tx.items)], 
+                    catBreakdown: negativeCats, // Stuur negatieve BTW-categorieën mee!
+                    type: tx.type,
+                    device: "Tablet Correctie"
+                };
+                
+                // 3. Versturen en Lokale lijst opschonen
+                App.net.addToQueue(cor);
+                
+                State.history = State.history.filter(h => h.id != id);
+                localStorage.setItem('mc_history', JSON.stringify(State.history));
+                
+                App.ui.openHistory(); 
+                App.ui.updateLastBill();
+                alert("Correctie verwerkt.");
             }
         },
         secretKnock: () => {
             State.knockCount++;
             if(State.knockCount === 5) {
-                App.ui.openManager();
+                App.ui.openModal('modal-manager'); // Direct openen
                 State.knockCount = 0;
             }
             setTimeout(() => State.knockCount=0, 2000);
         }
     },
-    
-    settings: {
-        toggleTraining: () => {
-            State.training = document.getElementById('chk-training').checked;
-            const bar = document.getElementById('top-bar');
-            if(State.training) bar.classList.add('training-mode'); else bar.classList.remove('training-mode');
-        }
+    net: {
+        addToQueue: (data) => { State.queue.push({ data: data }); localStorage.setItem('mc_queue', JSON.stringify(State.queue)); App.net.processQueue(); },
+        processQueue: () => {
+            if(State.queue.length === 0 || !navigator.onLine) { App.ui.updateNetStatus(); return; }
+            fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(State.queue[0].data) })
+            .then(() => { State.queue.shift(); localStorage.setItem('mc_queue', JSON.stringify(State.queue)); if(State.queue.length>0) setTimeout(App.net.processQueue, 300); App.ui.updateNetStatus(); })
+            .catch(e => { console.error(e); App.ui.updateNetStatus(); });
+        },
+        startQueueProcessor: () => { window.addEventListener('online', ()=>{App.net.processQueue(); App.ui.updateNetStatus();}); setInterval(App.net.processQueue, 10000); },
+        initBattery: () => { if(navigator.getBattery) navigator.getBattery().then(b => { const u=()=>document.getElementById('bat-level').innerText=Math.round(b.level*100)+"%"; u(); b.addEventListener('levelchange', u); }); }
+    },
+
+    ui: {
+        renderCats: () => { document.getElementById('cat-tabs').innerHTML = CONFIG.CATS.map((n, i) => `<button class="cat-btn ${i===State.activeCat?'active':''}" onclick="App.ui.setCat(${i})">${n}</button>`).join(''); },
+        setCat: (i) => { State.activeCat = i; App.ui.renderCats(); App.ui.renderGrid(); },
+        renderGrid: () => {
+            document.getElementById('prod-grid').innerHTML = CONFIG.PRODUCTS.filter(p => p.c === State.activeCat).map(p => {
+                const inCart = State.cart.find(x => x.n === p.n);
+                const badge = inCart ? `<div class="p-badge visible">${inCart.q}</div>` : `<div class="p-badge"></div>`;
+                const action = p.special ? `App.ui.openNumpad()` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
+                const extra = p.c===3 ? 'suggest-target' : '';
+                return `<div class="p-card cat-style-${p.c} ${extra}" onclick="${action}">${badge}<div class="p-name">${p.n}</div><div class="p-price">${p.special?"...":Utils.formatPrice(p.p)}</div></div>`;
+            }).join('');
+        },
+        renderCart: () => {
+            const list = document.getElementById('cart-list');
+            if(State.cart.length===0) list.innerHTML = `<div style="text-align:center; color:#cbd5e1; margin-top:50px;">🛒 Leeg</div>`;
+            else list.innerHTML = State.cart.map((item, i) => `<div class="cart-row"><div class="qty-box" onclick="App.cart.add('${item.n}',${item.p},${item.c})">${item.q}</div><div><div style="font-weight:700; font-size:0.9rem;">${item.n}</div></div><div style="font-weight:700;">${Utils.formatPrice(item.p*item.q)}</div><div class="del-btn" onclick="App.cart.remove(${i})">&minus;</div></div>`).join('');
+            document.getElementById('total-display').innerText = Utils.formatPrice(App.cart.calculateTotal());
+            const active = State.cart.length>0 && !State.isProcessing;
+            document.getElementById('btn-cash').style.opacity = active ? 1 : 0.5;
+            document.getElementById('btn-pin').style.opacity = active ? 1 : 0.5;
+            if(State.discount) { document.getElementById('btn-disc').classList.add('active'); document.getElementById('disc-status').innerText="AAN"; }
+            else { document.getElementById('btn-disc').classList.remove('active'); document.getElementById('disc-status').innerText="UIT"; }
+            list.scrollTop = list.scrollHeight;
+        },
+        updateClock: () => {
+            const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
+            if([10,12,14,16].includes(now.getHours()) && now.getMinutes()===0 && now.getSeconds()===0) document.getElementById('haccp-alert').classList.add('show');
+            if(now.getHours()===16 && now.getMinutes()===45 && now.getSeconds()===0) document.getElementById('closing-alert').classList.add('show');
+        },
+        triggerGold: () => { document.querySelectorAll('.suggest-target').forEach(e => { e.classList.add('suggest-gold'); setTimeout(()=>e.classList.remove('suggest-gold'), 5000); }); },
+        setLoading: (b) => document.getElementById('app-wrapper').style.opacity = b ? 0.7 : 1,
+        openModal: (id) => document.getElementById(id).classList.add('open'),
+        closeModal: (id) => document.getElementById(id).classList.remove('open'),
+        updateLastBill: () => { if(State.history.length>0) document.getElementById('last-bill-amt').innerText = Utils.formatPrice(State.history[State.history.length-1].total); },
+        updateNetStatus: () => { const d=document.getElementById('net-dot'), t=document.getElementById('net-text'); if(!navigator.onLine){d.className="dot err";t.innerText="Offline";} else if(State.queue.length>0){d.className="dot sync";t.innerText="Sync...";} else {d.className="dot ok";t.innerText="Online";} },
+        openHistory: () => {
+            document.getElementById('history-list').innerHTML = State.history.slice().reverse().map(h => `<div style="background:white; padding:10px; margin-bottom:8px; border-radius:8px; border:1px solid #e2e8f0;"><div style="display:flex; justify-content:space-between; font-weight:bold;"><span>${h.time} (${h.type})</span><span>${Utils.formatPrice(h.total)}</span></div><div style="font-size:0.8rem; color:#64748b;">${h.items.join(', ')}</div><button onclick="App.manager.undo(${h.id})" style="color:#ef4444; background:#fef2f2; padding:4px 8px; border-radius:4px; margin-top:5px; font-weight:bold; font-size:0.7rem;">CREDITEER</button></div>`).join('');
+            App.ui.openModal('modal-history');
+        },
+        initNumpad: () => { document.getElementById('numpad-keys').innerHTML = [7,8,9,4,5,6,1,2,3,'.',0,'OK'].map(k => `<button class="num-key" onclick="${k==='OK'?'App.ui.confirmNumpad()':`App.ui.typeNumpad('${k}')`}" style="${k==='OK'?'background:#16a34a; color:white':''}">${k}</button>`).join(''); },
+        typeNumpad: (k) => { State.numpadVal += k; document.getElementById('numpad-display').innerText = State.numpadVal; },
+        confirmNumpad: () => { let v = parseFloat(State.numpadVal.replace(',','.')); if(v>0) App.cart.add("Diversen", v, 5); App.ui.closeModal('modal-open'); State.numpadVal=""; }
     }
 };
 
-// BOOT
 window.onload = App.init;
-
 </script>
 </body>
 </html>
