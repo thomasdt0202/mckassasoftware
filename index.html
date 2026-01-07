@@ -282,7 +282,8 @@
         let itemsFlat = []; let catMap = {};
         cart.forEach(c => { for(let i=0; i<c.qty; i++) itemsFlat.push(c.n); let catName = "Diversen"; let pObj = products.find(p => p.n === c.n); if(pObj) { let catObj = categories.find(cat => cat.id === pObj.c); if(catObj) catName = catObj.name; } catMap[catName] = (catMap[catName]||0) + (c.p*c.qty); });
         
-        let record = { id: Date.now(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: sub, items: itemsFlat, catBreakdown: catMap, isDiscounted: discount, cartBackup: [...cart] };
+        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
+        let record = { id: Date.now(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: sub, items: itemsFlat, catBreakdown: catMap, isDiscounted: discount, device: deviceType, cartBackup: [...cart] };
         
         history.push(record); localStorage.setItem('mc_history', JSON.stringify(history));
         let logItem = { date: new Date().toLocaleString(), type: type, total: sub, items: itemsFlat.join(', ') };
@@ -307,11 +308,13 @@
         localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
 
         // Send correction to cloud
+        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
         let voidRecord = {...lastTransaction}; 
         voidRecord.id = Date.now() + 1; // NEW UNIQUE ID
         voidRecord.total = -Math.abs(voidRecord.total); // Force negative
         voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; 
         voidRecord.type = "CORRECTIE";
+        voidRecord.device = deviceType;
         
         queue.push({ data: voidRecord, retries: 0 }); saveQueue(); processQueue();
     }
@@ -365,6 +368,7 @@
         history = history.filter(h => h.id !== id);
         localStorage.setItem('mc_history', JSON.stringify(history));
         // 2. Send Correction to Cloud (Important!)
+        let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
         let correctionRecord = {
             id: Date.now() + 1, // NEW ID
             time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
@@ -372,7 +376,8 @@
             total: -total, 
             items: ["CORRECTIE OP: " + items], 
             catBreakdown: {}, 
-            isDiscounted: false
+            isDiscounted: false,
+            device: deviceType
         };
         queue.push({ data: correctionRecord, retries: 0 }); saveQueue(); processQueue();
         
