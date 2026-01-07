@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V3.0</title>
+    <title>MuseumCatering Kassa V3.1</title>
+    
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/cash-register.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
+        /* STYLES BLIJVEN HETZELFDE - GEOPTIMALISEERD VOOR TABLET */
         :root { --bg-body: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --warning: #f59e0b; --danger: #ef4444; --gold: #fbbf24; --radius: 12px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
         button { border: none; outline: none; font-family: inherit; cursor: pointer; touch-action: manipulation; }
+        
         .app-container { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
         .left-panel { flex: 66; display: flex; flex-direction: column; padding: 16px; gap: 16px; }
         .right-panel { flex: 34; background: var(--bg-panel); display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.05); z-index: 20; }
+
         .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: 64px; }
         .top-bar.training-mode { background: #0ea5e9; color: white; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; }
@@ -26,23 +32,26 @@
         .dot.ok { background: var(--success); box-shadow: 0 0 8px var(--success); }
         .dot.sync { background: var(--warning); animation: blink 1s infinite; }
         .dot.err { background: var(--danger); }
+
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
+        
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
         .p-card { background: var(--bg-panel); border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.1s; }
         .p-card:active { transform: scale(0.96); background: #e2e8f0; }
-        .p-card.cat-style-0 { border-bottom: 4px solid #bfdbfe; } /* Fris */
-        .p-card.cat-style-1 { border-bottom: 4px solid #fed7aa; } /* Warm */
-        .p-card.cat-style-2 { border-bottom: 4px solid #e9d5ff; } /* Alcohol */
-        .p-card.cat-style-3 { border-bottom: 4px solid #fbcfe8; } /* Zoet */
-        .p-card.cat-style-4 { border-bottom: 4px solid #bbf7d0; } /* Eten */
-        .p-card.cat-style-5 { border-bottom: 4px solid #e2e8f0; } /* Divers */
+        .p-card.cat-style-0 { border-bottom: 4px solid #bfdbfe; } 
+        .p-card.cat-style-1 { border-bottom: 4px solid #fed7aa; } 
+        .p-card.cat-style-2 { border-bottom: 4px solid #e9d5ff; } 
+        .p-card.cat-style-3 { border-bottom: 4px solid #fbcfe8; } 
+        .p-card.cat-style-4 { border-bottom: 4px solid #bbf7d0; } 
+        .p-card.cat-style-5 { border-bottom: 4px solid #e2e8f0; } 
         .p-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
         .p-price { font-weight: 600; color: var(--text-muted); align-self: flex-end; font-size: 0.9rem; }
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
         .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.3) !important; animation: pulseGold 1.5s infinite; z-index: 10; }
+
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
         .ticket-title { font-weight: 800; font-size: 1.1rem; }
         .last-bill { font-size: 0.8rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 8px; background: #eff6ff; border-radius: 6px; }
@@ -50,6 +59,7 @@
         .cart-row { display: grid; grid-template-columns: 40px 1fr auto 32px; gap: 10px; align-items: center; background: white; padding: 10px; border-radius: 8px; border: 1px solid var(--border); animation: slideIn 0.2s; }
         .qty-box { background: #eff6ff; color: var(--accent); font-weight: 800; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
         .del-btn { color: var(--danger); font-size: 1.4rem; cursor: pointer; display: flex; justify-content: center; }
+        
         .action-panel { background: white; padding: 16px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 12px; }
         .total-amount { font-size: 2.5rem; font-weight: 900; line-height: 1; color: var(--primary); text-align: right; margin-bottom: 5px;}
         .pay-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 12px; height: 75px; }
@@ -59,6 +69,7 @@
         .btn-opt.active { background: #fff7ed; color: #c2410c; border-color: #f97316; }
         .report-btn { width:100%; text-align:center; padding:10px; font-weight:700; color:var(--primary); text-decoration:underline; cursor:pointer; font-size:0.9rem; }
         .footer-tools { display: flex; justify-content: space-between; margin-top:5px; font-size:0.8rem; color:var(--text-muted);}
+
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
         .modal-backdrop.open { display: flex; }
         .modal-content { background: white; width: 600px; max-width: 95%; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 90vh; }
@@ -69,6 +80,7 @@
         .report-qty { font-weight: 800; color: var(--primary); width: 40px; }
         .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
         .report-h.staff { color: #c2410c; border-color: #fdba74; }
+
         #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         #flash-overlay.visible { opacity: 1; }
         .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
@@ -297,40 +309,57 @@ const App = {
             document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
             App.ui.openModal('modal-report');
         },
-       resetSession: () => {
-            if(confirm("Sessie afsluiten?\n\n1. De DAGSTAAT wordt gewist (Dashboard -> € 0,00)\n2. De TABLET wordt gewist.\n3. Het JOURNAAL blijft bewaard.")) {
-                
-                // Visuele feedback dat we bezig zijn
+        
+        resetSession: () => {
+            if(confirm("Sessie afsluiten?\n\n1. DAGSTAAT wordt gewist (Dashboard 0,00)\n2. TABLET wordt gewist.")) {
                 App.ui.setLoading(true);
-
-                // Stuur RESET signaal naar Google Sheets
-                fetch(CONFIG.GOOGLE_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ 
-                        type: "RESET", 
-                        time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
-                        catBreakdown: {}, // Leeg object om errors te voorkomen
-                        items: [],
-                        total: 0
-                    })
-                }).then(() => {
-                    // Als signaal verstuurd is: Wis lokaal en herlaad
-                    State.history = []; 
-                    localStorage.setItem('mc_history', JSON.stringify([]));
-                    
-                    setTimeout(() => {
-                        location.reload(); 
-                    }, 1000); // Korte pauze voor zekerheid
-                }).catch(err => {
-                    alert("Fout bij verbinden met dashboard. Check internet. Lokaal wordt wel gewist.");
-                    State.history = []; 
-                    localStorage.setItem('mc_history', JSON.stringify([]));
-                    location.reload(); 
-                });
+                fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: "RESET", time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), catBreakdown: {}, items: [], total: 0 }) })
+                .then(() => { State.history = []; localStorage.setItem('mc_history', JSON.stringify([])); setTimeout(() => location.reload(), 1000); })
+                .catch(err => { alert("Offline reset. Lokaal gewist."); State.history = []; localStorage.setItem('mc_history', JSON.stringify([])); location.reload(); });
             }
         },
+        
+        undo: (id) => {
+            if(!confirm("Bon crediteren?")) return;
+            // ROBUUSTE ZOEKFUNCTIE (Matcht String of Number)
+            let tx = State.history.find(h => String(h.id) === String(id));
+            
+            if(tx) {
+                // VANGNET: Als er geen categorieën zijn, gooi alles op Diversen
+                let negativeCats = {};
+                let hasCats = false;
+                if (tx.catBreakdown && typeof tx.catBreakdown === 'object') {
+                    for (let key in tx.catBreakdown) {
+                        let val = parseFloat(tx.catBreakdown[key]);
+                        if(val !== 0) { negativeCats[key] = -Math.abs(val); hasCats = true; }
+                    }
+                }
+                if (!hasCats) negativeCats["Diversen"] = -Math.abs(tx.total);
+                
+                // NIEUW RECORD (Met 'COR-' prefix om dubbelingen te voorkomen)
+                let cor = { 
+                    id: "COR-" + Utils.uuid(), 
+                    time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), 
+                    total: -Math.abs(tx.total), 
+                    items: ["CORRECTIE: " + (Array.isArray(tx.items)?tx.items.join(", "):tx.items)], 
+                    catBreakdown: negativeCats, 
+                    type: tx.type, 
+                    device: "Tablet Correctie", 
+                    isDiscounted: tx.isDiscounted||false 
+                };
+                
+                App.net.addToQueue(cor);
+                State.history = State.history.filter(h => String(h.id) !== String(id)); 
+                localStorage.setItem('mc_history', JSON.stringify(State.history));
+                
+                App.ui.openHistory(); 
+                App.ui.updateLastBill();
+                alert("Correctie verwerkt in Dagstaat & Journaal.");
+            } else { 
+                alert("Fout: Bon niet gevonden in geheugen."); 
+            }
+        }
+    },
 
     net: {
         addToQueue: (data) => { State.queue.push({ data: data }); localStorage.setItem('mc_queue', JSON.stringify(State.queue)); App.net.processQueue(); },
@@ -400,4 +429,3 @@ window.onload = App.init;
 </script>
 </body>
 </html>
-
