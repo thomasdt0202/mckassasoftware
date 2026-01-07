@@ -27,7 +27,7 @@
             --col-warning: #f59e0b; 
             --col-danger: #ef4444;
             --col-staff: #c2410c;
-            --col-training: #0ea5e9; /* Lichtblauw voor training */
+            --col-training: #0ea5e9;
 
             --cat-blue: #eff6ff; --cat-blue-border: #bfdbfe;
             --cat-orange: #fff7ed; --cat-orange-border: #fed7aa;
@@ -60,7 +60,7 @@
         .dot.online { background: var(--col-success); box-shadow: 0 0 6px var(--col-success); }
         .dot.syncing { background: var(--col-warning); animation: pulse 1s infinite; }
         
-        /* BATTERY ICON */
+        /* BATTERY */
         .bat-icon { font-size: 0.9rem; }
         .bat-low { color: var(--col-danger); animation: pulse 1s infinite; }
 
@@ -84,7 +84,6 @@
         }
         .p-card:active { transform: scale(0.96); background: #e2e8f0; }
         
-        /* Categories styling */
         .p-card.cat-0 { background: linear-gradient(to bottom right, white, var(--cat-blue)); border-color: var(--cat-blue-border); }
         .p-card.cat-1 { background: linear-gradient(to bottom right, white, var(--cat-orange)); border-color: var(--cat-orange-border); }
         .p-card.cat-2 { background: linear-gradient(to bottom right, white, var(--cat-purple)); border-color: var(--cat-purple-border); }
@@ -133,7 +132,7 @@
 
         .warning-footer { background: #111827; color: #fcd34d; padding: 8px; text-align: center; font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; }
 
-        /* TOAST NOTIFICATION (UNDO) */
+        /* TOAST NOTIFICATION */
         #toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
             background: #1e293b; color: white; padding: 15px 25px; border-radius: 30px;
@@ -167,7 +166,6 @@
         .btn-destructive { background: #e2e8f0; color: #94a3b8; width: 100%; padding: 15px; border-radius: 10px; font-weight: 800; font-size: 1rem; pointer-events: none; transition: 0.3s; margin-top: 10px; }
         .btn-destructive.active { background: var(--col-danger); color: white; pointer-events: all; cursor: pointer; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4); }
 
-        /* Tools Modal */
         .tool-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -176,7 +174,16 @@
         input:checked + .slider { background-color: var(--col-training); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* Flash & Anim */
+        /* CASH MODAL STYLES */
+        .cash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; }
+        .cash-btn { background: white; border: 2px solid var(--border); padding: 15px; border-radius: 10px; font-weight: 700; font-size: 1.1rem; color: var(--col-primary); display: flex; align-items: center; justify-content: center; transition: 0.1s; }
+        .cash-btn:active { transform: scale(0.96); background: #f1f5f9; }
+        .cash-btn.selected { background: var(--col-accent); color: white; border-color: var(--col-accent); }
+        .cash-display-area { background: #f8fafc; padding: 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .cash-row { display: flex; justify-content: space-between; font-size: 1.1rem; color: var(--text-muted); }
+        .cash-change-row { display: flex; justify-content: space-between; font-size: 1.6rem; font-weight: 900; color: var(--col-primary); margin-top: 10px; padding-top: 10px; border-top: 1px dashed #cbd5e1; }
+        .cash-ok-btn { background: var(--col-success); color: white; width: 100%; padding: 18px; border-radius: 12px; font-weight: 800; font-size: 1.3rem; margin-top: 20px; }
+
         #flash { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 500; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
         #flash.visible { opacity: 1; }
         .checkmark { font-size: 8rem; color: white; font-weight: 900; animation: scaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -186,7 +193,6 @@
 
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px; }
         .num-key { padding: 15px; font-size: 1.4rem; font-weight: bold; background: #f8fafc; border-radius: 8px; }
-        
         .hist-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; }
         .hist-top { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 4px; }
         .hist-items { font-size: 0.8rem; color: #64748b; line-height: 1.4; }
@@ -268,6 +274,34 @@
         </div>
         
         <div class="warning-footer">⚠️ Invoeren op Hoofdkassa!</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="cashModal">
+    <div class="modal-card">
+        <div class="wiz-header">
+            <h2 style="margin:0;">Contant Afrekenen</h2>
+            <button onclick="closeCash()" style="font-size:2rem; background:none;">&times;</button>
+        </div>
+        <div class="cash-display-area">
+            <div class="cash-row">
+                <span>Te betalen:</span>
+                <span style="font-weight:bold; color:var(--text-main);" id="cashTotalReq">€ 0,00</span>
+            </div>
+            <div class="cash-row">
+                <span>Ontvangen:</span>
+                <span style="font-weight:bold; color:var(--col-accent);" id="cashGiven">€ 0,00</span>
+            </div>
+            <div class="cash-change-row">
+                <span>TERUG:</span>
+                <span id="cashChange" style="color:var(--col-danger)">€ 0,00</span>
+            </div>
+        </div>
+        <div class="cash-grid" id="cashButtons">
+            </div>
+        <div style="padding:20px;">
+            <button class="cash-ok-btn" onclick="confirmCash()">AFRONDEN</button>
+        </div>
     </div>
 </div>
 
@@ -398,12 +432,13 @@
     let discount = false;
     let numStr = "";
     
-    // NEW STATE
     let trainingMode = false;
     let idleTimer;
-    let lastDeletedCart = null; // For Undo Clear
-    let lastTransaction = null; // For Undo Payment
-    let undoAction = null; // Function to execute
+    let lastDeletedCart = null;
+    let lastTransaction = null; 
+    let undoAction = null; 
+    
+    let cashGivenAmount = 0; // For cash modal
 
     window.onload = () => {
         renderCats(); renderGrid(); renderCart(); updateClock(); processQueue(); updateLastBill();
@@ -421,14 +456,9 @@
     /* --- IDLE / SCREENSAVER --- */
     function resetIdleTimer() {
         clearTimeout(idleTimer);
-        // Hide screensaver if active
         const ss = document.getElementById('screensaver');
         if(ss.style.display === 'flex') ss.style.display = 'none';
-        
-        // Set new timer (15 mins = 900000 ms)
-        idleTimer = setTimeout(() => {
-            ss.style.display = 'flex';
-        }, 900000); 
+        idleTimer = setTimeout(() => { ss.style.display = 'flex'; }, 900000); 
     }
     function wakeUp() { resetIdleTimer(); }
 
@@ -447,13 +477,8 @@
         const el = document.getElementById('batLevel');
         const icon = document.getElementById('batIcon');
         el.innerText = level + '%';
-        if(level <= 20 && !bat.charging) {
-            el.style.color = 'var(--col-danger)';
-            icon.className = 'bat-icon bat-low';
-        } else {
-            el.style.color = 'var(--text-main)';
-            icon.className = 'bat-icon';
-        }
+        if(level <= 20 && !bat.charging) { el.style.color = 'var(--col-danger)'; icon.className = 'bat-icon bat-low'; } 
+        else { el.style.color = 'var(--text-main)'; icon.className = 'bat-icon'; }
     }
 
     /* --- UNDO SYSTEM --- */
@@ -465,18 +490,12 @@
         t.classList.add('visible');
         setTimeout(() => t.classList.remove('visible'), 5000);
     }
-    
-    function execUndo() {
-        if(undoAction) undoAction();
-        document.getElementById('toast').classList.remove('visible');
-    }
+    function execUndo() { if(undoAction) undoAction(); document.getElementById('toast').classList.remove('visible'); }
 
     /* --- UI LOGIC --- */
     function renderCats() {
         const c = document.getElementById('catTabs');
-        c.innerHTML = categories.map(cat => 
-            `<button class="cat-btn ${cat.id===activeCat?'active':''}" onclick="setCat(${cat.id})">${cat.name}</button>`
-        ).join('');
+        c.innerHTML = categories.map(cat => `<button class="cat-btn ${cat.id===activeCat?'active':''}" onclick="setCat(${cat.id})">${cat.name}</button>`).join('');
     }
     function setCat(id) { activeCat = id; renderCats(); renderGrid(); }
     function renderGrid() {
@@ -493,9 +512,8 @@
     }
     function renderCart() {
         const l = document.getElementById('cartList');
-        if(cart.length === 0) {
-            l.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:50px; opacity:0.5;"><div style="font-size:3rem;">🛒</div><div>Bon is leeg</div></div>`;
-        } else {
+        if(cart.length === 0) { l.innerHTML = `<div style="text-align:center; color:var(--text-muted); margin-top:50px; opacity:0.5;"><div style="font-size:3rem;">🛒</div><div>Bon is leeg</div></div>`; } 
+        else {
             l.innerHTML = cart.map((item, idx) => `
                 <div class="cart-row">
                     <div class="qty-control" onclick="modCart(${idx}, -1)">${item.qty}</div>
@@ -511,24 +529,12 @@
     }
 
     /* --- CART ACTIONS --- */
-    function addToCart(n, p) {
-        let exist = cart.find(x => x.n === n);
-        if(exist) exist.qty++; else cart.push({n, p, qty:1});
-        renderCart();
-    }
-    function modCart(idx, delta) {
-        cart[idx].qty += delta;
-        if(cart[idx].qty <= 0) cart.splice(idx, 1);
-        renderCart();
-    }
+    function addToCart(n, p) { let exist = cart.find(x => x.n === n); if(exist) exist.qty++; else cart.push({n, p, qty:1}); renderCart(); }
+    function modCart(idx, delta) { cart[idx].qty += delta; if(cart[idx].qty <= 0) cart.splice(idx, 1); renderCart(); }
     function clearCart() { 
         if(cart.length > 0 && confirm("Bon wissen?")) { 
-            lastDeletedCart = [...cart]; // Backup for undo
-            cart = []; discount = false; updateDiscBtn(); renderCart(); 
-            showToast("Bon gewist.", "HERSTEL", () => {
-                cart = [...lastDeletedCart];
-                renderCart();
-            });
+            lastDeletedCart = [...cart]; cart = []; discount = false; updateDiscBtn(); renderCart(); 
+            showToast("Bon gewist.", "HERSTEL", () => { cart = [...lastDeletedCart]; renderCart(); });
         }
     }
     function toggleDiscount() { discount = !discount; updateDiscBtn(); renderCart(); }
@@ -543,121 +549,131 @@
     function closeOpen() { document.getElementById('openModal').style.display='none'; }
     function numInput(key) { numStr += key; updateNumDisplay(); }
     function updateNumDisplay() { document.getElementById('numpadDisplay').innerText = numStr || "0.00"; }
-    function confirmOpen() {
-        let val = parseFloat(numStr);
-        if(val > 0) addToCart("Diversen", val);
-        closeOpen();
-    }
+    function confirmOpen() { let val = parseFloat(numStr); if(val > 0) addToCart("Diversen", val); closeOpen(); }
 
-    /* --- PAYMENT --- */
+    /* --- PAYMENT & CASH MODAL --- */
     function payPin() { finishTransaction("PIN"); }
-    function payCash() { finishTransaction("CONTANT"); } 
+    
+    // Updated payCash triggers modal
+    function payCash() { 
+        if(cart.length === 0) return;
+        
+        let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0);
+        if(discount) sub = sub * 0.75;
+        
+        // Setup Modal
+        cashGivenAmount = 0;
+        document.getElementById('cashTotalReq').innerText = `€ ${sub.toFixed(2)}`;
+        document.getElementById('cashGiven').innerText = `€ 0,00`;
+        document.getElementById('cashChange').innerText = `€ 0,00`;
+        
+        // Gen Buttons
+        const grid = document.getElementById('cashButtons');
+        grid.innerHTML = '';
+        
+        const opts = [];
+        opts.push(sub); // Exact
+        if(sub % 5 !== 0) opts.push(Math.ceil(sub/5)*5); // Next 5
+        if(sub % 10 !== 0) opts.push(Math.ceil(sub/10)*10); // Next 10
+        if(sub < 20) opts.push(20);
+        if(sub < 50) opts.push(50);
+        
+        // Filter duplicates and sort
+        const uniqueOpts = [...new Set(opts)].sort((a,b)=>a-b);
+        
+        uniqueOpts.forEach(amt => {
+            let btn = document.createElement('div');
+            btn.className = 'cash-btn';
+            btn.innerText = `€ ${amt.toFixed(2)}`;
+            btn.onclick = () => selectCash(amt, btn, sub);
+            grid.appendChild(btn);
+        });
+
+        document.getElementById('cashModal').style.display = 'flex';
+    }
+    
+    function closeCash() { document.getElementById('cashModal').style.display = 'none'; }
+    
+    function selectCash(amount, btnElement, total) {
+        // UI Selection
+        document.querySelectorAll('.cash-btn').forEach(b => b.classList.remove('selected'));
+        btnElement.classList.add('selected');
+        
+        cashGivenAmount = amount;
+        document.getElementById('cashGiven').innerText = `€ ${amount.toFixed(2)}`;
+        let change = amount - total;
+        document.getElementById('cashChange').innerText = `€ ${change.toFixed(2)}`;
+    }
+    
+    function confirmCash() {
+        if(cashGivenAmount === 0) {
+            // If nothing selected, assume exact? Or alert? Let's assume exact for speed if user just hits OK
+             let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0);
+             if(discount) sub = sub * 0.75;
+             cashGivenAmount = sub;
+        }
+        closeCash();
+        finishTransaction("CONTANT");
+    }
 
     function finishTransaction(type) {
         if(cart.length === 0) return;
         
-        // TRAINING MODE
         if(trainingMode) {
-            const flash = document.getElementById('flash');
-            flash.classList.add('visible');
-            setTimeout(() => flash.classList.remove('visible'), 500);
-            cart = []; discount = false; updateDiscBtn(); renderCart();
-            return;
+            const flash = document.getElementById('flash'); flash.classList.add('visible'); setTimeout(() => flash.classList.remove('visible'), 500);
+            cart = []; discount = false; updateDiscBtn(); renderCart(); return;
         }
 
-        // VISUAL FEEDBACK
-        const flash = document.getElementById('flash');
-        flash.classList.add('visible');
-        setTimeout(() => flash.classList.remove('visible'), 500);
+        const flash = document.getElementById('flash'); flash.classList.add('visible'); setTimeout(() => flash.classList.remove('visible'), 500);
 
-        // DATA PREP
         let sub = cart.reduce((a,b) => a + (b.p*b.qty), 0);
         if(discount) sub = sub * 0.75;
 
-        let itemsFlat = [];
-        let catMap = {};
+        let itemsFlat = []; let catMap = {};
         cart.forEach(c => {
             for(let i=0; i<c.qty; i++) itemsFlat.push(c.n);
             let catName = "Diversen";
             let pObj = products.find(p => p.n === c.n);
-            if(pObj) {
-                let catObj = categories.find(cat => cat.id === pObj.c);
-                if(catObj) catName = catObj.name;
-            }
+            if(pObj) { let catObj = categories.find(cat => cat.id === pObj.c); if(catObj) catName = catObj.name; }
             catMap[catName] = (catMap[catName]||0) + (c.p*c.qty);
         });
 
-        // CREATE RECORD
         let record = {
-            id: Date.now(), // Unique ID for undo
+            id: Date.now(),
             time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
             type: type,
             total: sub,
             items: itemsFlat,
             catBreakdown: catMap,
             isDiscounted: discount,
-            cartBackup: [...cart] // Backup items specifically for restoring cart
+            cartBackup: [...cart]
         };
 
-        // SAVE & QUEUE
-        history.push(record);
-        localStorage.setItem('mc_history', JSON.stringify(history));
-        queue.push({ data: record, retries: 0 });
-        saveQueue();
-        processQueue();
+        history.push(record); localStorage.setItem('mc_history', JSON.stringify(history));
+        queue.push({ data: record, retries: 0 }); saveQueue(); processQueue();
 
-        // RESET
-        lastTransaction = record; // Save for Undo
-        cart = []; discount = false; updateDiscBtn(); renderCart();
-        updateLastBill();
-
-        // SHOW UNDO TOAST
+        lastTransaction = record; 
+        cart = []; discount = false; updateDiscBtn(); renderCart(); updateLastBill();
         showToast("Betaald: €" + sub.toFixed(2), "OEPS, HERSTEL", undoPayment);
     }
 
-    /* --- UNDO PAYMENT LOGIC --- */
+    /* --- UNDO PAYMENT --- */
     function undoPayment() {
         if(!lastTransaction) return;
-        
-        // 1. Restore Cart
-        cart = [...lastTransaction.cartBackup];
-        discount = lastTransaction.isDiscounted;
-        updateDiscBtn();
-        renderCart();
-
-        // 2. Remove from Local History
-        history = history.filter(h => h.id !== lastTransaction.id);
-        localStorage.setItem('mc_history', JSON.stringify(history));
-        updateLastBill();
-
-        // 3. Remove from Queue (if not sent yet)
+        cart = [...lastTransaction.cartBackup]; discount = lastTransaction.isDiscounted; updateDiscBtn(); renderCart();
+        history = history.filter(h => h.id !== lastTransaction.id); localStorage.setItem('mc_history', JSON.stringify(history)); updateLastBill();
         let queueIndex = queue.findIndex(q => q.data.id === lastTransaction.id);
-        if(queueIndex > -1) {
-            // Not sent yet, just remove
-            queue.splice(queueIndex, 1);
-            saveQueue();
-        } else {
-            // Already sent? We need to send a VOID transaction
-            // Note: Simplest way is to just accept it might be in sheet, 
-            // but for safety in this app we assume the queue takes > 5 sec or user is quick.
-            // If strictly needed, we push a negative record.
-            let voidRecord = {...lastTransaction};
-            voidRecord.total = -voidRecord.total;
-            voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")];
-            voidRecord.type = "CORRECTIE";
-            queue.push({ data: voidRecord, retries: 0 });
-            saveQueue();
-            processQueue();
+        if(queueIndex > -1) { queue.splice(queueIndex, 1); saveQueue(); } 
+        else {
+            let voidRecord = {...lastTransaction}; voidRecord.total = -voidRecord.total;
+            voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; voidRecord.type = "CORRECTIE";
+            queue.push({ data: voidRecord, retries: 0 }); saveQueue(); processQueue();
         }
     }
 
     function updateLastBill() {
-        if(history.length > 0) {
-            let last = history[history.length-1];
-            document.getElementById('lastBillAmt').innerText = `€ ${last.total.toFixed(2)}`;
-        } else {
-            document.getElementById('lastBillAmt').innerText = `€ 0,00`;
-        }
+        if(history.length > 0) { let last = history[history.length-1]; document.getElementById('lastBillAmt').innerText = `€ ${last.total.toFixed(2)}`; } 
+        else { document.getElementById('lastBillAmt').innerText = `€ 0,00`; }
     }
 
     /* --- QUEUE & SYNC --- */
@@ -665,21 +681,13 @@
     function processQueue() {
         if(queue.length === 0 || !navigator.onLine) { updateStatus(); return; }
         let job = queue[0];
-        fetch(GOOGLE_URL, {
-            method: 'POST', mode: 'no-cors',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(job.data)
-        })
+        fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(job.data) })
         .then(() => { queue.shift(); saveQueue(); if(queue.length > 0) setTimeout(processQueue, 200); })
         .catch(err => { updateStatus(); });
     }
-    function sendResetSignal() {
-        queue.push({ data: { action: "RESET" }, retries: 0 });
-        saveQueue(); processQueue();
-    }
+    function sendResetSignal() { queue.push({ data: { action: "RESET" }, retries: 0 }); saveQueue(); processQueue(); }
     function updateStatus() {
-        const dot = document.getElementById('statusDot');
-        const txt = document.getElementById('statusText');
+        const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText');
         if(!navigator.onLine) { dot.className="dot"; txt.innerText="Lokaal"; txt.style.color="#64748b"; } 
         else if (queue.length > 0) { dot.className="dot syncing"; txt.innerText="Sync..."; txt.style.color="#f59e0b"; } 
         else { dot.className="dot online"; txt.innerText="Online"; txt.style.color="#16a34a"; }
@@ -690,15 +698,9 @@
     function closeTools() { document.getElementById('toolsModal').style.display = 'none'; }
     function toggleTraining() {
         trainingMode = document.getElementById('chkTraining').checked;
-        const topBar = document.getElementById('topBar');
-        const brand = document.getElementById('brandText');
-        if(trainingMode) {
-            topBar.classList.add('training');
-            brand.innerText = "TRAININGSMODUS";
-        } else {
-            topBar.classList.remove('training');
-            brand.innerText = "MuseumCatering Kassa";
-        }
+        const topBar = document.getElementById('topBar'); const brand = document.getElementById('brandText');
+        if(trainingMode) { topBar.classList.add('training'); brand.innerText = "TRAININGSMODUS"; } 
+        else { topBar.classList.remove('training'); brand.innerText = "MuseumCatering Kassa"; }
     }
 
     /* --- WIZARD LOGIC --- */
@@ -713,16 +715,13 @@
             });
         });
         function buildTable(counts, title, isStaff) {
-            let keys = Object.keys(counts).sort();
-            if(keys.length === 0) return "";
+            let keys = Object.keys(counts).sort(); if(keys.length === 0) return "";
             let html = `<div class="wiz-section-title ${isStaff?'staff':''}">${title}</div><table class="wiz-table">`;
             keys.forEach(name => {
-                let pRef = products.find(p => p.n === name);
-                let priceTxt = pRef ? `€ ${pRef.p.toFixed(2)}` : "";
+                let pRef = products.find(p => p.n === name); let priceTxt = pRef ? `€ ${pRef.p.toFixed(2)}` : "";
                 html += `<tr><td class="wiz-qty">${counts[name]} x</td><td class="wiz-name">${name}</td><td class="wiz-price">${priceTxt}</td></tr>`;
             });
-            html += '</table>';
-            return html;
+            html += '</table>'; return html;
         }
         let html = "";
         let normalTable = buildTable(normalCounts, "NORMALE VERKOOP", false);
@@ -733,32 +732,18 @@
         document.getElementById('wizContent').innerHTML = html;
         document.getElementById('wizPinTotal').innerText = `€ ${pinTotal.toFixed(2)}`;
         document.getElementById('wizCashTotal').innerText = `€ ${cashTotal.toFixed(2)}`;
-        document.getElementById('confirmCheck').checked = false;
-        toggleResetBtn();
+        document.getElementById('confirmCheck').checked = false; toggleResetBtn();
         document.getElementById('wizardModal').style.display = 'flex';
     }
     function closeWizard() { document.getElementById('wizardModal').style.display = 'none'; }
-    function toggleResetBtn() {
-        const chk = document.getElementById('confirmCheck');
-        const btn = document.getElementById('btnReset');
-        if(chk.checked) btn.classList.add('active'); else btn.classList.remove('active');
-    }
-    function executeReset() {
-        if(!document.getElementById('confirmCheck').checked) return;
-        sendResetSignal();
-        history = [];
-        localStorage.setItem('mc_history', JSON.stringify(history));
-        updateLastBill();
-        closeWizard();
-        alert("Sessie afgesloten. Tablet is schoon.");
-    }
+    function toggleResetBtn() { const chk = document.getElementById('confirmCheck'); const btn = document.getElementById('btnReset'); if(chk.checked) btn.classList.add('active'); else btn.classList.remove('active'); }
+    function executeReset() { if(!document.getElementById('confirmCheck').checked) return; sendResetSignal(); history = []; localStorage.setItem('mc_history', JSON.stringify(history)); updateLastBill(); closeWizard(); alert("Sessie afgesloten. Tablet is schoon."); }
     function openHistory() {
         const container = document.getElementById('histContent');
         if(history.length === 0) { container.innerHTML = '<div style="text-align:center; padding:20px; color:#64748b;">Nog geen bonnen vandaag.</div>'; } 
         else {
             container.innerHTML = history.slice().reverse().map(h => {
-                let itemsList = h.items.join(", ");
-                let discBadge = h.isDiscounted ? '<span style="color:#c2410c; font-size:0.7rem; margin-left:5px;">(KORTING)</span>' : '';
+                let itemsList = h.items.join(", "); let discBadge = h.isDiscounted ? '<span style="color:#c2410c; font-size:0.7rem; margin-left:5px;">(KORTING)</span>' : '';
                 return `<div class="hist-item"><div class="hist-top"><span>${h.time} - ${h.type} ${discBadge}</span><span>€ ${h.total.toFixed(2)}</span></div><div class="hist-items">${itemsList}</div></div>`;
             }).join('');
         }
