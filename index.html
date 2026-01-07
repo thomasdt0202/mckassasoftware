@@ -43,7 +43,7 @@
         .top-bar.training { background: var(--col-training); color: white; }
         .top-bar.training .brand, .top-bar.training .status-text { color: white !important; }
         
-        .brand { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; } /* Clickable for Manager */
+        .brand { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; cursor: pointer; } 
         .status-area { display: flex; align-items: center; gap: 10px; }
         .pill { background: #f1f5f9; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 0.8rem; display: flex; align-items: center; gap: 6px; }
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; transition: 0.3s; }
@@ -119,7 +119,25 @@
         .wiz-header { padding: 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;}
         .wiz-body { padding: 15px; overflow-y: auto; flex: 1; background: #f8fafc; }
         .wiz-footer { padding: 15px; border-top: 1px solid var(--border); background: white; border-radius: 0 0 15px 15px; }
-        
+        .wiz-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-bottom: 15px;}
+        .wiz-table td { padding: 6px 0; border-bottom: 1px dashed #e2e8f0; }
+        .wiz-qty { font-weight: 800; color: var(--col-primary); width: 35px; }
+        .wiz-section-title { margin-top: 5px; margin-bottom: 8px; font-weight: 800; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid var(--border); padding-bottom: 4px; }
+        .wiz-section-title.staff { color: var(--col-staff); border-color: #fdba74; }
+
+        /* BUTTON FIX - GROOT EN ROOD */
+        .btn-destructive { 
+            background: #e2e8f0; color: #94a3b8; width: 100%; padding: 20px; 
+            border-radius: 12px; font-weight: 900; font-size: 1.2rem; 
+            pointer-events: none; transition: 0.3s; margin-top: 15px; 
+            text-transform: uppercase; border: 2px solid transparent;
+        }
+        .btn-destructive.active { 
+            background: var(--col-danger); color: white; pointer-events: all; 
+            cursor: pointer; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4); 
+            transform: scale(1.02);
+        }
+
         /* SETTINGS & TOGGLES */
         .tool-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
@@ -162,7 +180,7 @@
 
 <div id="flash"><div class="checkmark">✓</div></div>
 
-<div id="haccpAlert" onclick="closeHaccp()">⚠️ Vergeet de taartjes en broodjes niet te borgen! <br><span style="font-size:0.9rem; font-weight:normal;">Kleurstickertje toevoegen & turven.</span></div>
+<div id="haccpAlert" onclick="closeHaccp()">⚠️ Vergeet de taartjes niet te borgen! <br><span style="font-size:0.9rem; font-weight:normal;">Kleurstickertje toevoegen & turven.</span></div>
 <div id="closingAlert" onclick="closeClosing()">WIJ ZIJN GESLOTEN<br><span style="font-size:1.5rem">Fijne avond!</span></div>
 
 <div id="toast"><span id="toastMsg">Bericht</span><div class="toast-btn" id="toastBtn" onclick="execUndo()">Herstel</div></div>
@@ -505,7 +523,16 @@
         else {
             container.innerHTML = history.slice().reverse().map(h => {
                 let itemsList = h.items.join(", "); let discBadge = h.isDiscounted ? '<span style="color:#c2410c; font-size:0.7rem; margin-left:5px;">(KORTING)</span>' : '';
-                return `<div class="hist-item"><div class="hist-top"><span>${h.time} - ${h.type} ${discBadge}</span><div><span>€ ${h.total.toFixed(2)}</span><span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}')">×</span></div></div><div class="hist-items">${itemsList}</div></div>`;
+                return `<div class="hist-item">
+                    <div class="hist-top">
+                        <span>${h.time} - ${h.type} ${discBadge}</span>
+                        <div>
+                            <span>€ ${h.total.toFixed(2)}</span>
+                            <span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}')">×</span>
+                        </div>
+                    </div>
+                    <div class="hist-items">${itemsList}</div>
+                </div>`;
             }).join('');
         }
         document.getElementById('historyModal').style.display = 'flex';
@@ -531,13 +558,30 @@
         openHistory(); updateLastBill();
     }
 
+    function numInput(key) { numStr += key; updateNumDisplay(); }
+    function updateNumDisplay() { document.getElementById('numpadDisplay').innerText = numStr || "0.00"; }
+    
+    /* --- CLOCK & HACCP --- */
     function updateClock() { 
         const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); 
+        
+        // HACCP CHECK
         const timeStr = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
         const triggers = ['10:00', '12:00', '14:00', '16:00'];
-        if(triggers.includes(timeStr) && !haccpTriggered) { document.getElementById('haccpAlert').classList.add('visible'); haccpTriggered = true; setTimeout(closeHaccp, 30000); setTimeout(() => haccpTriggered = false, 60000); doFeedback(); }
-        // Closing Alert
-        if(timeStr === '16:45') { document.getElementById('closingAlert').classList.add('visible'); }
+        
+        if(triggers.includes(timeStr) && !haccpTriggered) {
+            document.getElementById('haccpAlert').classList.add('visible');
+            haccpTriggered = true;
+            // Auto hide after 30 sec
+            setTimeout(closeHaccp, 30000);
+            // Prevent re-triggering for 60 seconds
+            setTimeout(() => haccpTriggered = false, 60000);
+        }
+        
+        // CLOSING ALERT (16:45)
+        if(timeStr === '16:45') {
+            document.getElementById('closingAlert').classList.add('visible');
+        }
     }
     
     function closeHaccp() { document.getElementById('haccpAlert').classList.remove('visible'); }
