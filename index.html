@@ -307,21 +307,24 @@ const App = {
         }
     },
 
-    manager: {
+  manager: {
         openReport: () => {
             // Aggregatie Logic (Turven)
             let counts = {}; let staffCounts = {};
             let pinTotal = 0; let cashTotal = 0;
 
             State.history.forEach(tx => {
+                // Tel totalen
                 if(tx.type === "PIN") pinTotal += tx.total; else cashTotal += tx.total;
                 
-                // Veilig items parsen, zelfs als het array of string is
-                let itemsArr = Array.isArray(tx.items) ? tx.items : [tx.items];
+                // Veilig items parsen (ook als het oude data is)
+                let itemsArr = Array.isArray(tx.items) ? tx.items : (tx.items ? [tx.items] : []);
+                
                 itemsArr.forEach(itemStr => {
-                    let parts = String(itemStr).split('x ');
+                    let s = String(itemStr);
+                    let parts = s.includes('x ') ? s.split('x ') : [1, s];
                     let q = parseInt(parts[0]) || 1;
-                    let name = parts[1] || itemStr;
+                    let name = parts[1] || s;
                     
                     if(tx.isDiscounted) staffCounts[name] = (staffCounts[name] || 0) + q;
                     else counts[name] = (counts[name] || 0) + q;
@@ -334,71 +337,89 @@ const App = {
                 let keys = Object.keys(data).sort();
                 if(keys.length === 0) return "";
                 let tbl = `<div class="report-h ${isStaff?'staff':''}">${title}</div><table class="report-table">`;
-                keys.forEach(k => {
-                    tbl += `<tr><td class="report-qty">${data[k]}</td><td>${k}</td></tr>`;
-                });
+                keys.forEach(k => { tbl += `<tr><td class="report-qty">${data[k]}</td><td>${k}</td></tr>`; });
                 return tbl + "</table>";
             };
 
             html += buildTable(counts, "Normale Verkoop", false);
             html += buildTable(staffCounts, "Personeel / Korting", true);
             
-            if(html === "") html = "<div style='text-align:center; padding:20px; color:#94a3b8'>Nog geen verkopen vandaag.</div>";
+            if(html === "") html = "<div style='text-align:center; padding:20px; color:#94a3b8'>Nog geen verkopen.</div>";
 
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('rep-pin').innerText = Utils.formatPrice(pinTotal);
             document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
             App.ui.openModal('modal-report');
         },
+        
         resetSession: () => {
-            if(confirm("Sessie afsluiten? Dit wist de lijst op de tablet.\nZorg dat je alles hebt ingevoerd!")) {
-                State.history = []; localStorage.setItem('mc_history', JSON.stringify([]));
+            if(confirm("Sessie afsluiten? Dit wist de lijst op de tablet.")) {
+                State.history = []; 
+                localStorage.setItem('mc_history', JSON.stringify([]));
                 location.reload();
             }
         },
+        
         undo: (id) => {
             if(!confirm("Bon crediteren? Dit haalt de omzet én BTW uit het systeem.")) return;
             
-            // Zoek de bon (ID kan tekst of nummer zijn, dus we gebruiken losse vergelijking)
-            let tx = State.history.find(h => h.id == id);
+            // Zoek de bon (Type-veilig zoeken)
+            let tx = State.history.find(h => String(h.id) === String(id));
             
             if(tx) {
-                // 1. Maak de Categorieën Negatief (CRUCIAAL VOOR JOURNAAL)
+                // 1. Categorieën Negatief Maken (CRUCIAAL)
                 let negativeCats = {};
-                if (tx.catBreakdown) {
+                let hasCats = false;
+
+                if (tx.catBreakdown && typeof tx.catBreakdown === 'object') {
                     for (let key in tx.catBreakdown) {
-                        negativeCats[key] = -Math.abs(tx.catBreakdown[key]);
+                        let val = parseFloat(tx.catBreakdown[key]);
+                        if(val !== 0) {
+                            negativeCats[key] = -Math.abs(val); // Forceer min-teken
+                            hasCats = true;
+                        }
                     }
                 }
 
+                // FAILSAFE: Als oude data geen categorieën had, gooi alles op Diversen
+                // Zodat het journaal in ieder geval in balans is.
+                if (!hasCats) {
+                    negativeCats["Diversen"] = -Math.abs(tx.total);
+                }
+
                 // 2. Correctie record bouwen
+                // We voegen 'COR-' toe aan ID om zeker te zijn dat Server het als nieuw ziet
                 let cor = {
-                    ...tx,
-                    id: Utils.uuid(), 
-                    total: -Math.abs(tx.total), // Forceer negatief totaal
-                    items: ["CORRECTIE OP: " + (Array.isArray(tx.items) ? tx.items.join(", ") : tx.items)], 
-                    catBreakdown: negativeCats, // Stuur negatieve BTW-categorieën mee!
+                    id: "COR-" + Utils.uuid(), 
+                    time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
+                    total: -Math.abs(tx.total), // Forceer negatief
+                    items: ["CORRECTIE: " + (Array.isArray(tx.items) ? tx.items.join(", ") : tx.items)], 
+                    catBreakdown: negativeCats, // Stuur de negatieve categorieën
                     type: tx.type,
-                    device: "Tablet Correctie"
+                    device: "Tablet Correctie",
+                    isDiscounted: tx.isDiscounted || false
                 };
                 
                 // 3. Versturen en Lokale lijst opschonen
                 App.net.addToQueue(cor);
                 
-                State.history = State.history.filter(h => h.id != id);
+                // Verwijder uit lokale lijst
+                State.history = State.history.filter(h => String(h.id) !== String(id));
                 localStorage.setItem('mc_history', JSON.stringify(State.history));
                 
                 App.ui.openHistory(); 
                 App.ui.updateLastBill();
-                alert("Correctie verwerkt.");
+                
+                // Feedback
+                alert("Correctie verwerkt. Bedrag is van omzet en journaal af.");
+            } else {
+                alert("Fout: Bon niet gevonden in geheugen.");
             }
         },
+        
         secretKnock: () => {
             State.knockCount++;
-            if(State.knockCount === 5) {
-                App.ui.openModal('modal-manager'); // Direct openen
-                State.knockCount = 0;
-            }
+            if(State.knockCount === 5) { App.ui.openModal('modal-manager'); State.knockCount = 0; }
             setTimeout(() => State.knockCount=0, 2000);
         }
     },
@@ -463,3 +484,4 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
