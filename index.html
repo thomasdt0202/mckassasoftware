@@ -299,9 +299,20 @@
         if(!lastTransaction) return;
         cart = [...lastTransaction.cartBackup]; discount = lastTransaction.isDiscounted; updateDiscBtn(); renderCart();
         history = history.filter(h => h.id !== lastTransaction.id); localStorage.setItem('mc_history', JSON.stringify(history)); updateLastBill();
+        
+        // Remove from Perm Log too to keep it clean (or keep as VOID?) - User wants sync.
+        // For backup we usually keep everything, but for the "Permanent total count" user implies a valid log. 
+        // Let's create a "VOID" entry in perm log.
         permLog.push({ date: new Date().toLocaleString(), type: "HERSTEL", total: -lastTransaction.total, items: "Herstel van vorige" });
         localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
-        let voidRecord = {...lastTransaction}; voidRecord.total = -voidRecord.total; voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; voidRecord.type = "CORRECTIE";
+
+        // Send correction to cloud
+        let voidRecord = {...lastTransaction}; 
+        voidRecord.id = Date.now() + 1; // NEW UNIQUE ID
+        voidRecord.total = -Math.abs(voidRecord.total); // Force negative
+        voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; 
+        voidRecord.type = "CORRECTIE";
+        
         queue.push({ data: voidRecord, retries: 0 }); saveQueue(); processQueue();
     }
 
@@ -332,7 +343,16 @@
         else {
             container.innerHTML = history.slice().reverse().map(h => {
                 let itemsList = h.items.join(", "); let discBadge = h.isDiscounted ? '<span style="color:#c2410c; font-size:0.7rem; margin-left:5px;">(KORTING)</span>' : '';
-                return `<div class="hist-item"><div class="hist-top"><span>${h.time} - ${h.type} ${discBadge}</span><div><span>€ ${h.total.toFixed(2)}</span><span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}')">×</span></div></div><div class="hist-items">${itemsList}</div></div>`;
+                return `<div class="hist-item">
+                    <div class="hist-top">
+                        <span>${h.time} - ${h.type} ${discBadge}</span>
+                        <div>
+                            <span>€ ${h.total.toFixed(2)}</span>
+                            <span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}')">×</span>
+                        </div>
+                    </div>
+                    <div class="hist-items">${itemsList}</div>
+                </div>`;
             }).join('');
         }
         document.getElementById('historyModal').style.display = 'flex';
@@ -341,23 +361,54 @@
     
     function deleteHistoryItem(id, total, items) {
         if(!confirm("Weet je zeker dat je deze bon wilt verwijderen? Dit stuurt een correctie naar het dashboard.")) return;
-        history = history.filter(h => h.id !== id); localStorage.setItem('mc_history', JSON.stringify(history));
-        let correctionRecord = { id: Date.now(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: "CORRECTIE", total: -total, items: ["CORRECTIE OP: " + items], catBreakdown: {}, isDiscounted: false };
+        // 1. Remove locally
+        history = history.filter(h => h.id !== id);
+        localStorage.setItem('mc_history', JSON.stringify(history));
+        // 2. Send Correction to Cloud (Important!)
+        let correctionRecord = {
+            id: Date.now() + 1, // NEW ID
+            time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
+            type: "CORRECTIE", 
+            total: -total, 
+            items: ["CORRECTIE OP: " + items], 
+            catBreakdown: {}, 
+            isDiscounted: false
+        };
         queue.push({ data: correctionRecord, retries: 0 }); saveQueue(); processQueue();
-        permLog.push({ date: new Date().toLocaleString(), type: "CORRECTIE", total: -total, items: "Verwijderd uit historie" }); localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
+        
+        // 3. Log in Permanent Backup
+        permLog.push({ date: new Date().toLocaleString(), type: "CORRECTIE", total: -total, items: "Verwijderd uit historie" });
+        localStorage.setItem('mc_perm_log', JSON.stringify(permLog));
+
         openHistory(); updateLastBill();
     }
 
     function numInput(key) { numStr += key; updateNumDisplay(); }
     function updateNumDisplay() { document.getElementById('numpadDisplay').innerText = numStr || "0.00"; }
     
+    /* --- CLOCK & HACCP --- */
     function updateClock() { 
         const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}); 
+        
+        // HACCP CHECK
         const timeStr = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
         const triggers = ['10:00', '12:00', '14:00', '16:00'];
-        if(triggers.includes(timeStr) && !haccpTriggered) { document.getElementById('haccpAlert').classList.add('visible'); haccpTriggered = true; setTimeout(closeHaccp, 30000); setTimeout(() => haccpTriggered = false, 60000); }
-        if(timeStr === '16:45') { document.getElementById('closingAlert').classList.add('visible'); }
+        
+        if(triggers.includes(timeStr) && !haccpTriggered) {
+            document.getElementById('haccpAlert').classList.add('visible');
+            haccpTriggered = true;
+            // Auto hide after 30 sec
+            setTimeout(closeHaccp, 30000);
+            // Prevent re-triggering for 60 seconds
+            setTimeout(() => haccpTriggered = false, 60000);
+        }
+        
+        // CLOSING ALERT (16:45)
+        if(timeStr === '16:45') {
+            document.getElementById('closingAlert').classList.add('visible');
+        }
     }
+    
     function closeHaccp() { document.getElementById('haccpAlert').classList.remove('visible'); }
     function closeClosing() { document.getElementById('closingAlert').classList.remove('visible'); }
 </script>
