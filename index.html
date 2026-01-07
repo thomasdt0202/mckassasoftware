@@ -297,27 +297,40 @@ const App = {
             document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
             App.ui.openModal('modal-report');
         },
-        resetSession: () => { if(confirm("Sessie afsluiten?")) { State.history = []; localStorage.setItem('mc_history', JSON.stringify([])); location.reload(); } },
-        undo: (id) => {
-            if(!confirm("Bon crediteren?")) return;
-            let tx = State.history.find(h => String(h.id) === String(id));
-            if(tx) {
-                let negativeCats = {}; let hasCats = false;
-                if (tx.catBreakdown && typeof tx.catBreakdown === 'object') {
-                    for (let key in tx.catBreakdown) {
-                        let val = parseFloat(tx.catBreakdown[key]);
-                        if(val !== 0) { negativeCats[key] = -Math.abs(val); hasCats = true; }
-                    }
-                }
-                if (!hasCats) negativeCats["Diversen"] = -Math.abs(tx.total);
+       resetSession: () => {
+            if(confirm("Sessie afsluiten?\n\n1. De DAGSTAAT wordt gewist (Dashboard -> € 0,00)\n2. De TABLET wordt gewist.\n3. Het JOURNAAL blijft bewaard.")) {
                 
-                let cor = { id: "COR-" + Utils.uuid(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), total: -Math.abs(tx.total), items: ["CORRECTIE: " + (Array.isArray(tx.items)?tx.items.join(", "):tx.items)], catBreakdown: negativeCats, type: tx.type, device: "Tablet Correctie", isDiscounted: tx.isDiscounted||false };
-                App.net.addToQueue(cor);
-                State.history = State.history.filter(h => String(h.id) !== String(id)); localStorage.setItem('mc_history', JSON.stringify(State.history));
-                App.ui.openHistory(); App.ui.updateLastBill();
-            } else { alert("Fout: Bon niet gevonden."); }
-        }
-    },
+                // Visuele feedback dat we bezig zijn
+                App.ui.setLoading(true);
+
+                // Stuur RESET signaal naar Google Sheets
+                fetch(CONFIG.GOOGLE_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ 
+                        type: "RESET", 
+                        time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
+                        catBreakdown: {}, // Leeg object om errors te voorkomen
+                        items: [],
+                        total: 0
+                    })
+                }).then(() => {
+                    // Als signaal verstuurd is: Wis lokaal en herlaad
+                    State.history = []; 
+                    localStorage.setItem('mc_history', JSON.stringify([]));
+                    
+                    setTimeout(() => {
+                        location.reload(); 
+                    }, 1000); // Korte pauze voor zekerheid
+                }).catch(err => {
+                    alert("Fout bij verbinden met dashboard. Check internet. Lokaal wordt wel gewist.");
+                    State.history = []; 
+                    localStorage.setItem('mc_history', JSON.stringify([]));
+                    location.reload(); 
+                });
+            }
+        },
 
     net: {
         addToQueue: (data) => { State.queue.push({ data: data }); localStorage.setItem('mc_queue', JSON.stringify(State.queue)); App.net.processQueue(); },
@@ -387,3 +400,4 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
