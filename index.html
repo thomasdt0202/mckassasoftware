@@ -313,7 +313,10 @@
         voidRecord.id = Date.now() + 1; // NEW UNIQUE ID
         voidRecord.total = -Math.abs(voidRecord.total); // Force negative
         voidRecord.items = ["CORRECTIE: " + voidRecord.items.join(", ")]; 
-        voidRecord.type = "CORRECTIE";
+        
+        // USE ORIGINAL TYPE TO CORRECT MATH (PIN or CONTANT)
+        // voidRecord.type remains as it was in lastTransaction (e.g. "PIN")
+        
         voidRecord.device = deviceType;
         
         queue.push({ data: voidRecord, retries: 0 }); saveQueue(); processQueue();
@@ -322,7 +325,7 @@
     function updateLastBill() { if(history.length > 0) { let last = history[history.length-1]; document.getElementById('lastBillAmt').innerText = `€ ${last.total.toFixed(2)}`; } else { document.getElementById('lastBillAmt').innerText = `€ 0,00`; } }
     function saveQueue() { localStorage.setItem('mc_queue', JSON.stringify(queue)); updateStatus(); }
     function processQueue() { if(queue.length === 0 || !navigator.onLine) { updateStatus(); return; } let job = queue[0]; fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(job.data) }).then(() => { queue.shift(); saveQueue(); if(queue.length > 0) setTimeout(processQueue, 200); }).catch(err => { updateStatus(); }); }
-    function sendResetSignal() { queue.push({ data: { action: "RESET" }, retries: 0 }); saveQueue(); processQueue(); }
+    function sendResetSignal() { queue.push({ data: { type: "RESET" }, retries: 0 }); saveQueue(); processQueue(); }
     function updateStatus() { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if(!navigator.onLine) { dot.className="dot"; txt.innerText="Lokaal"; txt.style.color="#64748b"; } else if (queue.length > 0) { dot.className="dot syncing"; txt.innerText="Sync..."; txt.style.color="#f59e0b"; } else { dot.className="dot online"; txt.innerText="Online"; txt.style.color="#16a34a"; } }
 
     function openTools() { document.getElementById('toolsModal').style.display = 'flex'; }
@@ -351,7 +354,7 @@
                         <span>${h.time} - ${h.type} ${discBadge}</span>
                         <div>
                             <span>€ ${h.total.toFixed(2)}</span>
-                            <span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}')">×</span>
+                            <span class="btn-del-hist" onclick="deleteHistoryItem(${h.id}, ${h.total}, '${itemsList}', '${h.type}')">×</span>
                         </div>
                     </div>
                     <div class="hist-items">${itemsList}</div>
@@ -362,18 +365,19 @@
     }
     function closeHistory() { document.getElementById('historyModal').style.display = 'none'; }
     
-    function deleteHistoryItem(id, total, items) {
+    function deleteHistoryItem(id, total, items, type) {
         if(!confirm("Weet je zeker dat je deze bon wilt verwijderen? Dit stuurt een correctie naar het dashboard.")) return;
         // 1. Remove locally
         history = history.filter(h => h.id !== id);
         localStorage.setItem('mc_history', JSON.stringify(history));
+        
         // 2. Send Correction to Cloud (Important!)
         let deviceType = /Mobi|Android|iPad|Tablet/i.test(navigator.userAgent) ? "Tablet/Mobiel" : "Desktop/Kassa";
         let correctionRecord = {
             id: Date.now() + 1, // NEW ID
             time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}),
-            type: "CORRECTIE", 
-            total: -total, 
+            type: type, // USE ORIGINAL TYPE (PIN/CONTANT) FOR MATH
+            total: -total, // NEGATIVE VALUE
             items: ["CORRECTIE OP: " + items], 
             catBreakdown: {}, 
             isDiscounted: false,
