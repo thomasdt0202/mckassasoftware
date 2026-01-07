@@ -349,7 +349,30 @@
 
     function updateLastBill() { if(history.length > 0) { let last = history[history.length-1]; document.getElementById('lastBillAmt').innerText = `€ ${last.total.toFixed(2)}`; } else { document.getElementById('lastBillAmt').innerText = `€ 0,00`; } }
     function saveQueue() { localStorage.setItem('mc_queue', JSON.stringify(queue)); updateStatus(); }
-    function processQueue() { if(queue.length === 0 || !navigator.onLine) { updateStatus(); return; } let job = queue[0]; fetch(GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(job.data) }).then(() => { queue.shift(); saveQueue(); if(queue.length > 0) setTimeout(processQueue, 200); }).catch(err => { updateStatus(); }); }
+    function processQueue() {
+    if(queue.length === 0 || !navigator.onLine) {
+        updateStatus();
+        return;
+    }
+    
+    let job = queue[0];
+    
+    // We gebruiken 'no-cors' voor snelheid, de Server checkt nu op dubbele ID's
+    fetch(GOOGLE_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(job.data)
+    }).then(() => {
+        // We gaan ervan uit dat het gelukt is. De Server filtert de dubbelen eruit.
+        queue.shift();
+        saveQueue();
+        if(queue.length > 0) setTimeout(processQueue, 500);
+    }).catch(err => {
+        console.error("Netwerkfout:", err);
+        updateStatus();
+    });
+}
     function sendResetSignal() { queue.push({ data: { type: "RESET" }, retries: 0 }); saveQueue(); processQueue(); }
     function updateStatus() { const dot = document.getElementById('statusDot'); const txt = document.getElementById('statusText'); if(!navigator.onLine) { dot.className="dot"; txt.innerText="Lokaal"; txt.style.color="#64748b"; } else if (queue.length > 0) { dot.className="dot syncing"; txt.innerText="Sync..."; txt.style.color="#f59e0b"; } else { dot.className="dot online"; txt.innerText="Online"; txt.style.color="#16a34a"; } }
 
@@ -421,3 +444,4 @@
 </script>
 </body>
 </html>
+
