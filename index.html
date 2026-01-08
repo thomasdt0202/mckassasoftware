@@ -3,39 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V3.3</title>
+    <title>MuseumCatering Kassa V4.0</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0f172a">
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/cash-register.png">
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* BASE STYLES */
+        /* BASE & LAYOUT */
         :root { --bg-body: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --warning: #f59e0b; --danger: #ef4444; --gold: #fbbf24; --radius: 12px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
+        body { font-family: 'Roboto', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
         button { border: none; outline: none; font-family: inherit; cursor: pointer; touch-action: manipulation; }
         
-        /* LAYOUT */
         .app-container { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
         .left-panel { flex: 66; display: flex; flex-direction: column; padding: 16px; gap: 16px; }
         .right-panel { flex: 34; background: var(--bg-panel); display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.05); z-index: 20; }
 
-        /* HEADER */
+        /* HEADER & STATUS */
         .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: 64px; }
         .top-bar.training-mode { background: #0ea5e9; color: white; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; }
         .status-indicators { display: flex; gap: 8px; }
         .status-pill { background: var(--bg-body); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
+        
         .dot { width: 8px; height: 8px; border-radius: 50%; background: #cbd5e1; }
         .dot.ok { background: var(--success); box-shadow: 0 0 8px var(--success); }
         .dot.sync { background: var(--warning); animation: blink 1s infinite; }
         .dot.err { background: var(--danger); }
+        
+        /* BATTERY ALARM */
+        .bat-low { color: var(--danger) !important; animation: pulseRed 1s infinite; font-weight: 900; }
 
-        /* CATEGORIES & GRID */
+        /* GRID */
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
@@ -55,9 +58,10 @@
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
         
-        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.5) !important; animation: pulseGold 1.2s infinite; z-index: 10; }
+        /* GOUD PULS VOOR SLAGROOM */
+        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.6) !important; animation: pulseGold 1.2s infinite; z-index: 10; }
 
-        /* CART & PAY */
+        /* RIGHT PANEL */
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
         .ticket-title { font-weight: 800; font-size: 1.1rem; }
         .last-bill { font-size: 0.8rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 8px; background: #eff6ff; border-radius: 6px; }
@@ -89,15 +93,22 @@
         .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
         .report-h.staff { color: #c2410c; border-color: #fdba74; }
 
-        /* ALERTS & ANIMATIONS */
-        #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
-        #flash-overlay.visible { opacity: 1; }
+        /* ALERTS */
         .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
         .alert-banner.show { transform: translateY(0); }
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; }
         
-        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        /* TOAST UNDO */
+        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 2000; }
+        #toast.visible { transform: translateX(-50%) translateY(0); }
+        .toast-btn { background: white; color: #1e293b; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; cursor: pointer; }
+
+        /* CHECKBOX CONFIRM */
+        .confirm-box { background: #fee2e2; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #fca5a5; display:flex; align-items:center; gap:10px; font-weight:bold; color: #991b1b; }
+
+        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.03); border-color:var(--gold);} 100% { transform: scale(1); } }
+        @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         @keyframes tabPulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
         @keyframes slideIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
         @keyframes blink { 50% { opacity: 0.4; } }
@@ -105,9 +116,13 @@
 </head>
 <body>
 
-<div id="flash-overlay"><div style="font-size:8rem; color:white;">✓</div></div>
 <div id="haccp-alert" class="alert-banner" style="background:#f59e0b; color:#78350f;" onclick="this.classList.remove('show')">⚠️ Taartjes Borgen!</div>
 <div id="closing-alert" class="alert-banner" style="background:#ef4444; color:white; height:100vh; display:flex; flex-direction:column; justify-content:center; font-size:3rem;" onclick="this.classList.remove('show')">GESLOTEN</div>
+
+<div id="toast">
+    <span id="toast-msg">Betaald</span>
+    <div class="toast-btn" onclick="App.payment.undoLast()">HERSTEL</div>
+</div>
 
 <div id="modal-cash" class="modal-backdrop">
     <div class="modal-content" style="width: 500px;">
@@ -144,7 +159,13 @@
                 <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:5px;"><span>Totaal PIN:</span><span id="rep-pin" style="color:#16a34a">€ 0,00</span></div>
                 <div style="display:flex; justify-content:space-between; font-weight:bold;"><span>Totaal CASH:</span><span id="rep-cash" style="color:#2563eb">€ 0,00</span></div>
             </div>
-            <button onclick="App.manager.resetSession()" style="width:100%; padding:20px; background:#ef4444; color:white; font-weight:bold; border-radius:10px;">SESSIE AFSLUITEN & WISSEN</button>
+            
+            <label class="confirm-box">
+                <input type="checkbox" id="chk-confirm" style="width:25px; height:25px;">
+                <span>Alles ingevoerd in de hoofdkassa?</span>
+            </label>
+
+            <button id="btn-reset" onclick="App.manager.resetSession()" style="width:100%; padding:20px; background:#94a3b8; color:white; font-weight:bold; border-radius:10px; margin-top:10px;">SESSIE AFSLUITEN & WISSEN</button>
         </div>
     </div>
 </div>
@@ -161,7 +182,7 @@
         <div class="top-bar" id="top-bar">
             <div class="brand">MuseumCatering</div>
             <div class="status-indicators">
-                <div class="status-pill">🔋 <span id="bat-level">--%</span></div>
+                <div class="status-pill" id="bat-pill">🔋 <span id="bat-level">--%</span></div>
                 <div class="status-pill"><div class="dot ok" id="net-dot"></div> <span id="net-text">Online</span></div>
                 <div class="status-pill">🕒 <span id="clock">00:00</span></div>
             </div>
@@ -213,7 +234,7 @@ const State = {
     cart: [],
     queue: JSON.parse(localStorage.getItem('mc_queue')) || [],
     history: JSON.parse(localStorage.getItem('mc_history')) || [],
-    activeCat: 0, discount: false, training: false, isProcessing: false, numpadVal: "", lastCashGiven: 0
+    activeCat: 0, discount: false, training: false, isProcessing: false, numpadVal: "", lastCashGiven: 0, lastTxId: null
 };
 
 const Utils = {
@@ -227,6 +248,14 @@ const App = {
         App.ui.renderCats(); App.ui.renderGrid(); App.ui.renderCart();
         App.ui.updateClock(); App.ui.initNumpad(); App.net.startQueueProcessor();
         App.net.initBattery(); App.ui.updateLastBill();
+        
+        // Checkbox listener
+        document.getElementById('chk-confirm').addEventListener('change', function() {
+            const btn = document.getElementById('btn-reset');
+            if(this.checked) { btn.style.background = "#ef4444"; btn.innerText = "NU AFSLUITEN (DEFINITIEF)"; }
+            else { btn.style.background = "#94a3b8"; btn.innerText = "EERST VINKJE ZETTEN"; }
+        });
+
         setInterval(App.ui.updateClock, 1000);
     },
 
@@ -236,11 +265,8 @@ const App = {
             let item = State.cart.find(x => x.n === name);
             if(item) item.q++; else State.cart.push({ n:name, p:price, q:1, c:catIdx });
             
-            // --- SMART PAIRING LOGICA ---
-            // 1. Warme Drank gekozen -> Pulse Zoetigheden Tab
-            if(catIdx === 1) App.ui.pulseTab(3);
-            
-            // 2. Taart of Warme Choco gekozen -> Highlight Slagroom
+            // --- SMART PAIRING ---
+            if(catIdx === 1) App.ui.pulseTab(3); // Warm -> Zoet
             if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom");
             
             App.ui.renderCart(); App.ui.renderGrid();
@@ -290,16 +316,30 @@ const App = {
             else for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k]);
 
             const record = { id: Utils.uuid(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: total, items: itemsFlat, catBreakdown: breakdown, isDiscounted: State.discount, device: "Tablet V2" };
+            
             State.history.push(record); localStorage.setItem('mc_history', JSON.stringify(State.history));
             App.net.addToQueue(record);
-            App.payment.finish(false);
+            
+            // Voor de Undo knop
+            State.lastTxId = record.id;
+            
+            App.payment.finish(false, total);
         },
-        finish: (isTraining) => {
+        finish: (isTraining, amount) => {
             State.cart = []; State.discount = false;
-            document.getElementById('flash-overlay').classList.add('visible');
-            setTimeout(() => document.getElementById('flash-overlay').classList.remove('visible'), 600);
+            
+            // TOAST MELDER (Met Undo)
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
+            toast.classList.add('visible');
+            setTimeout(() => toast.classList.remove('visible'), 5000);
+
             App.ui.renderCart(); App.ui.renderGrid(); App.ui.updateLastBill();
             setTimeout(() => { State.isProcessing = false; App.ui.setLoading(false); }, 1000);
+        },
+        undoLast: () => {
+            document.getElementById('toast').classList.remove('visible');
+            if(State.lastTxId) App.manager.undo(State.lastTxId);
         }
     },
 
@@ -326,25 +366,32 @@ const App = {
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('rep-pin').innerText = Utils.formatPrice(pinTotal);
             document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
+            
+            // Reset checkbox state
+            document.getElementById('chk-confirm').checked = false;
+            const btn = document.getElementById('btn-reset');
+            btn.style.background = "#94a3b8"; btn.innerText = "EERST VINKJE ZETTEN";
+            
             App.ui.openModal('modal-report');
         },
         
         resetSession: () => {
-            if(confirm("Sessie afsluiten?\n\n1. DAGSTAAT wordt gewist (Dashboard 0,00)\n2. TABLET wordt gewist.")) {
+            if(!document.getElementById('chk-confirm').checked) return;
+            
+            if(confirm("Zeker weten? Dit wist de lijst en het dashboard.")) {
                 App.ui.setLoading(true);
-                // TURBO RESET: We wachten niet op antwoord, we vuren het af en wissen direct.
+                // Turbo Reset
                 fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: "RESET", time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), catBreakdown: {}, items: [], total: 0 }) });
-                
-                // Direct wissen voor de gebruiker (geen wachttijd meer)
                 State.history = []; localStorage.setItem('mc_history', JSON.stringify([]));
                 location.reload();
             }
         },
         
         undo: (id) => {
-            if(!confirm("Bon crediteren?")) return;
+            if(!confirm("Bon crediteren? Dit wordt als correctie in het journaal gezet.")) return;
             let tx = State.history.find(h => String(h.id) === String(id));
             if(tx) {
+                // Negative Category Logic (Voor Journaal balans)
                 let negativeCats = {}; let hasCats = false;
                 if (tx.catBreakdown && typeof tx.catBreakdown === 'object') {
                     for (let key in tx.catBreakdown) {
@@ -370,9 +417,8 @@ const App = {
                 localStorage.setItem('mc_history', JSON.stringify(State.history));
                 
                 App.ui.openHistory(); App.ui.updateLastBill();
-                alert("Correctie verwerkt in Dagstaat & Journaal.");
             } else { 
-                alert("Fout: Bon niet gevonden in geheugen."); 
+                alert("Bon niet gevonden (te oud of reeds gewist)."); 
             }
         }
     },
@@ -386,7 +432,17 @@ const App = {
             .catch(e => { console.error(e); App.ui.updateNetStatus(); });
         },
         startQueueProcessor: () => { window.addEventListener('online', ()=>{App.net.processQueue(); App.ui.updateNetStatus();}); setInterval(App.net.processQueue, 10000); },
-        initBattery: () => { if(navigator.getBattery) navigator.getBattery().then(b => { const u=()=>document.getElementById('bat-level').innerText=Math.round(b.level*100)+"%"; u(); b.addEventListener('levelchange', u); }); }
+        initBattery: () => { 
+            if(navigator.getBattery) navigator.getBattery().then(b => { 
+                const u=()=> {
+                    const el = document.getElementById('bat-level');
+                    const pill = document.getElementById('bat-pill');
+                    el.innerText=Math.round(b.level*100)+"%"; 
+                    if(b.level < 0.2 && !b.charging) { pill.classList.add('bat-low'); } else { pill.classList.remove('bat-low'); }
+                }; 
+                u(); b.addEventListener('levelchange', u); 
+            }); 
+        }
     },
 
     ui: {
@@ -397,8 +453,9 @@ const App = {
                 const inCart = State.cart.find(x => x.n === p.n);
                 const badge = inCart ? `<div class="p-badge visible">${inCart.q}</div>` : `<div class="p-badge"></div>`;
                 const action = p.special ? `App.ui.openNumpad()` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
+                // Voeg data-name toe voor selectie
                 const extra = p.c===3 ? 'suggest-target' : ''; 
-                return `<div class="p-card cat-style-${p.c} ${extra}" onclick="${action}">${badge}<div class="p-name">${p.n}</div><div class="p-price">${p.special?"...":Utils.formatPrice(p.p)}</div></div>`;
+                return `<div class="p-card cat-style-${p.c} ${extra}" data-name="${p.n}" onclick="${action}">${badge}<div class="p-name">${p.n}</div><div class="p-price">${p.special?"...":Utils.formatPrice(p.p)}</div></div>`;
             }).join('');
         },
         renderCart: () => {
@@ -419,7 +476,7 @@ const App = {
             if(now.getHours()===16 && now.getMinutes()===45 && now.getSeconds()===0) document.getElementById('closing-alert').classList.add('show');
         },
         
-        // --- SLIMME PAIRING FUNCTIES ---
+        // --- SMART PAIRING ---
         triggerGold: () => { 
             document.querySelectorAll('.suggest-target').forEach(e => { 
                 e.classList.add('suggest-gold'); 
@@ -435,16 +492,13 @@ const App = {
             }
         },
         highlightProduct: (prodName) => {
-            const cards = document.querySelectorAll('.p-card');
-            cards.forEach(card => {
-                const nameDiv = card.querySelector('.p-name');
-                if(nameDiv && nameDiv.innerText === prodName) {
-                    card.classList.add('suggest-gold');
-                    setTimeout(() => card.classList.remove('suggest-gold'), 5000);
-                }
-            });
+            const card = document.querySelector(`.p-card[data-name="${prodName}"]`);
+            if(card) {
+                card.classList.add('suggest-gold');
+                setTimeout(() => card.classList.remove('suggest-gold'), 5000);
+            }
         },
-        // -------------------------------
+        // ---------------------
 
         setLoading: (b) => document.getElementById('app-wrapper').style.opacity = b ? 0.7 : 1,
         openModal: (id) => document.getElementById(id).classList.add('open'),
@@ -458,8 +512,6 @@ const App = {
         initNumpad: () => { document.getElementById('numpad-keys').innerHTML = [7,8,9,4,5,6,1,2,3,'.',0,'OK'].map(k => `<button class="num-key" onclick="${k==='OK'?'App.ui.confirmNumpad()':`App.ui.typeNumpad('${k}')`}" style="${k==='OK'?'background:#16a34a; color:white':''}">${k}</button>`).join(''); },
         typeNumpad: (k) => { State.numpadVal += k; document.getElementById('numpad-display').innerText = State.numpadVal; },
         confirmNumpad: () => { let v = parseFloat(State.numpadVal.replace(',','.')); if(v>0) App.cart.add("Diversen", v, 5); App.ui.closeModal('modal-open'); State.numpadVal=""; },
-        
-        // Settings / Tools
         toggleTraining: () => {
             State.training = document.getElementById('chk-training').checked;
             const bar = document.getElementById('top-bar');
