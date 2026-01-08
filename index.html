@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V3.2</title>
+    <title>MuseumCatering Kassa V3.3</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,16 +13,18 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* STYLES */
+        /* BASE STYLES */
         :root { --bg-body: #f1f5f9; --bg-panel: #ffffff; --text-main: #0f172a; --text-muted: #64748b; --border: #e2e8f0; --primary: #0f172a; --accent: #2563eb; --success: #16a34a; --warning: #f59e0b; --danger: #ef4444; --gold: #fbbf24; --radius: 12px; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
         body { font-family: 'Inter', sans-serif; margin: 0; background: var(--bg-body); height: 100dvh; display: flex; overflow: hidden; color: var(--text-main); }
         button { border: none; outline: none; font-family: inherit; cursor: pointer; touch-action: manipulation; }
         
+        /* LAYOUT */
         .app-container { display: flex; width: 100%; height: 100%; position: relative; z-index: 1; }
         .left-panel { flex: 66; display: flex; flex-direction: column; padding: 16px; gap: 16px; }
         .right-panel { flex: 34; background: var(--bg-panel); display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.05); z-index: 20; }
 
+        /* HEADER */
         .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: 64px; }
         .top-bar.training-mode { background: #0ea5e9; color: white; }
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; }
@@ -33,11 +35,10 @@
         .dot.sync { background: var(--warning); animation: blink 1s infinite; }
         .dot.err { background: var(--danger); }
 
+        /* CATEGORIES & GRID */
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-        
-        /* NIEUW: Pairing Pulse voor Tabs */
         .cat-btn.suggest-pulse { animation: tabPulse 1.5s infinite; border-color: var(--warning); color: #b45309; background: #fffbeb; }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
@@ -54,9 +55,9 @@
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
         
-        /* NIEUW: Pairing Gold voor Producten */
-        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.4) !important; animation: pulseGold 1.5s infinite; z-index: 10; }
+        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.5) !important; animation: pulseGold 1.2s infinite; z-index: 10; }
 
+        /* CART & PAY */
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
         .ticket-title { font-weight: 800; font-size: 1.1rem; }
         .last-bill { font-size: 0.8rem; font-weight: 600; color: var(--accent); cursor: pointer; padding: 4px 8px; background: #eff6ff; border-radius: 6px; }
@@ -74,10 +75,9 @@
         .btn-opt.active { background: #fff7ed; color: #c2410c; border-color: #f97316; }
         .report-btn { width:100%; text-align:center; padding:10px; font-weight:700; color:var(--primary); text-decoration:underline; cursor:pointer; font-size:0.9rem; }
         .footer-tools { display: flex; justify-content: space-between; margin-top:5px; font-size:0.8rem; color:var(--text-muted);}
-        
-        /* NIEUW: Warning Footer */
         .warning-footer { background: #111827; color: #fcd34d; padding: 12px; text-align: center; font-weight: 700; font-size: 0.85rem; letter-spacing: 0.5px; margin-top: auto; }
 
+        /* MODALS */
         .modal-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); z-index: 100; display: none; align-items: center; justify-content: center; }
         .modal-backdrop.open { display: flex; }
         .modal-content { background: white; width: 600px; max-width: 95%; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; max-height: 90vh; }
@@ -89,6 +89,7 @@
         .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
         .report-h.staff { color: #c2410c; border-color: #fdba74; }
 
+        /* ALERTS & ANIMATIONS */
         #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.3s; }
         #flash-overlay.visible { opacity: 1; }
         .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
@@ -236,7 +237,7 @@ const App = {
             if(item) item.q++; else State.cart.push({ n:name, p:price, q:1, c:catIdx });
             
             // --- SMART PAIRING LOGICA ---
-            // 1. Warme Drank gekozen (Cat 1) -> Pulse Zoetigheden Tab (Cat 3)
+            // 1. Warme Drank gekozen -> Pulse Zoetigheden Tab
             if(catIdx === 1) App.ui.pulseTab(3);
             
             // 2. Taart of Warme Choco gekozen -> Highlight Slagroom
@@ -331,21 +332,20 @@ const App = {
         resetSession: () => {
             if(confirm("Sessie afsluiten?\n\n1. DAGSTAAT wordt gewist (Dashboard 0,00)\n2. TABLET wordt gewist.")) {
                 App.ui.setLoading(true);
-                fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: "RESET", time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), catBreakdown: {}, items: [], total: 0 }) })
-                .then(() => { State.history = []; localStorage.setItem('mc_history', JSON.stringify([])); setTimeout(() => location.reload(), 1000); })
-                .catch(err => { alert("Offline reset. Lokaal gewist."); State.history = []; localStorage.setItem('mc_history', JSON.stringify([])); location.reload(); });
+                // TURBO RESET: We wachten niet op antwoord, we vuren het af en wissen direct.
+                fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: "RESET", time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), catBreakdown: {}, items: [], total: 0 }) });
+                
+                // Direct wissen voor de gebruiker (geen wachttijd meer)
+                State.history = []; localStorage.setItem('mc_history', JSON.stringify([]));
+                location.reload();
             }
         },
         
         undo: (id) => {
             if(!confirm("Bon crediteren?")) return;
-            // ROBUUSTE ZOEKFUNCTIE (Matcht String of Number)
             let tx = State.history.find(h => String(h.id) === String(id));
-            
             if(tx) {
-                // VANGNET: Als er geen categorieën zijn, gooi alles op Diversen
-                let negativeCats = {};
-                let hasCats = false;
+                let negativeCats = {}; let hasCats = false;
                 if (tx.catBreakdown && typeof tx.catBreakdown === 'object') {
                     for (let key in tx.catBreakdown) {
                         let val = parseFloat(tx.catBreakdown[key]);
@@ -354,7 +354,6 @@ const App = {
                 }
                 if (!hasCats) negativeCats["Diversen"] = -Math.abs(tx.total);
                 
-                // NIEUW RECORD (Met 'COR-' prefix om dubbelingen te voorkomen)
                 let cor = { 
                     id: "COR-" + Utils.uuid(), 
                     time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), 
@@ -370,8 +369,7 @@ const App = {
                 State.history = State.history.filter(h => String(h.id) !== String(id)); 
                 localStorage.setItem('mc_history', JSON.stringify(State.history));
                 
-                App.ui.openHistory(); 
-                App.ui.updateLastBill();
+                App.ui.openHistory(); App.ui.updateLastBill();
                 alert("Correctie verwerkt in Dagstaat & Journaal.");
             } else { 
                 alert("Fout: Bon niet gevonden in geheugen."); 
@@ -399,7 +397,7 @@ const App = {
                 const inCart = State.cart.find(x => x.n === p.n);
                 const badge = inCart ? `<div class="p-badge visible">${inCart.q}</div>` : `<div class="p-badge"></div>`;
                 const action = p.special ? `App.ui.openNumpad()` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
-                const extra = p.c===3 ? 'suggest-target' : ''; // Voor de zekerheid ook class meegeven
+                const extra = p.c===3 ? 'suggest-target' : ''; 
                 return `<div class="p-card cat-style-${p.c} ${extra}" onclick="${action}">${badge}<div class="p-name">${p.n}</div><div class="p-price">${p.special?"...":Utils.formatPrice(p.p)}</div></div>`;
             }).join('');
         },
@@ -437,10 +435,10 @@ const App = {
             }
         },
         highlightProduct: (prodName) => {
-            // Zoek product op naam in huidige grid en geef goud
             const cards = document.querySelectorAll('.p-card');
             cards.forEach(card => {
-                if(card.innerText.includes(prodName)) {
+                const nameDiv = card.querySelector('.p-name');
+                if(nameDiv && nameDiv.innerText === prodName) {
                     card.classList.add('suggest-gold');
                     setTimeout(() => card.classList.remove('suggest-gold'), 5000);
                 }
