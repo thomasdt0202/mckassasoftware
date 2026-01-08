@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V4.3</title>
+    <title>MuseumCatering Kassa V4.4</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,6 +42,7 @@
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
         
+        /* PULSE EFFECT TABS */
         .cat-btn.suggest-pulse { 
             animation: tabPulse 1s infinite alternate; 
             border-color: #f59e0b !important; 
@@ -64,6 +65,7 @@
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
         
+        /* GOUD PULS PRODUCTEN */
         .suggest-gold { 
             border-color: #ffd700 !important; 
             box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.6) !important; 
@@ -103,15 +105,24 @@
         .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
         .report-h.staff { color: #c2410c; border-color: #fdba74; }
 
+        /* ANIMATIE VINKJE */
+        #flash-overlay { position: fixed; inset: 0; background: rgba(22, 163, 74, 0.92); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
+        #flash-overlay.visible { opacity: 1; }
+        
+        .check-icon { font-size: 8rem; color: white; transform: scale(0); opacity: 0; }
+        #flash-overlay.visible .check-icon { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        @keyframes popIn { 0% { transform: scale(0); opacity:0; } 60% { transform: scale(1.2); opacity:1; } 100% { transform: scale(1); opacity:1; } }
+
         /* TOAST & ALERTS */
         .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
         .alert-banner.show { transform: translateY(0); }
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; }
         
-        #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 2000; }
+        #toast { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 20px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 2000; font-size: 0.95rem; }
         #toast.visible { transform: translateX(-50%) translateY(0); }
-        .toast-btn { background: white; color: #1e293b; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; cursor: pointer; }
+        .toast-btn { background: white; color: #1e293b; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
         .confirm-box { background: #fee2e2; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #fca5a5; display:flex; align-items:center; gap:10px; font-weight:bold; color: #991b1b; cursor:pointer; }
 
@@ -123,6 +134,8 @@
     </style>
 </head>
 <body>
+
+<div id="flash-overlay"><div class="check-icon">✓</div></div>
 
 <div id="haccp-alert" class="alert-banner" style="background:#f59e0b; color:#78350f;" onclick="this.classList.remove('show')">⚠️ Taartjes Borgen!</div>
 <div id="closing-alert" class="alert-banner" style="background:#ef4444; color:white; height:100vh; display:flex; flex-direction:column; justify-content:center; font-size:3rem;" onclick="this.classList.remove('show')">GESLOTEN</div>
@@ -328,30 +341,37 @@ const App = {
             State.history.push(record); localStorage.setItem('mc_history', JSON.stringify(State.history));
             App.net.addToQueue(record);
             
-            // SAVE FOR UNDO (Slimme Herstel Functie)
             State.lastTxId = record.id;
-            State.lastCartBackup = JSON.parse(JSON.stringify(State.cart)); // Diepe kopie van winkelwagen
+            State.lastCartBackup = JSON.parse(JSON.stringify(State.cart)); 
             
             App.payment.finish(false, total);
         },
         finish: (isTraining, amount) => {
             State.cart = []; State.discount = false;
-            // TOAST MET SLIMME UNDO
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
-            toast.classList.add('visible');
-            setTimeout(() => toast.classList.remove('visible'), 5000);
+            
+            // 1. VINK ANIMATIE
+            document.getElementById('flash-overlay').classList.add('visible');
+            setTimeout(() => {
+                document.getElementById('flash-overlay').classList.remove('visible');
+                
+                // 2. TOAST PAS NA VINK
+                const toast = document.getElementById('toast');
+                document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
+                toast.classList.add('visible');
+                
+                // 3. TOAST WEG NA 4 SEC
+                setTimeout(() => toast.classList.remove('visible'), 4000);
+                
+            }, 600); // Wacht op flash
 
             App.ui.renderCart(); App.ui.renderGrid(); App.ui.updateLastBill();
             setTimeout(() => { State.isProcessing = false; App.ui.setLoading(false); }, 1000);
         },
         undoLast: () => {
-            // SLIMME UNDO LOGICA
-            document.getElementById('toast').classList.remove('visible'); // Direct weg
+            document.getElementById('toast').classList.remove('visible'); 
             if(confirm("Foutje? Bon wordt gecrediteerd en producten komen terug.")) {
                 if(State.lastTxId) {
-                    App.manager.undo(State.lastTxId, true); // True = Silent mode (geen extra prompt)
-                    // HERSTEL WINKELWAGEN
+                    App.manager.undo(State.lastTxId, true);
                     if(State.lastCartBackup && State.lastCartBackup.length > 0) {
                         State.cart = JSON.parse(JSON.stringify(State.lastCartBackup));
                         App.ui.renderCart();
@@ -428,7 +448,8 @@ const App = {
                 App.net.addToQueue(cor);
                 State.history = State.history.filter(h => String(h.id) !== String(id)); 
                 localStorage.setItem('mc_history', JSON.stringify(State.history));
-                App.ui.openHistory(); App.ui.updateLastBill();
+                if(!silent) { App.ui.openHistory(); App.ui.updateLastBill(); }
+                else { App.ui.updateLastBill(); } // Silent update
             } else if(!silent) { 
                 alert("Bon niet gevonden (te oud of reeds gewist)."); 
             }
