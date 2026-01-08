@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V4.2</title>
+    <title>MuseumCatering Kassa V4.3</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -42,7 +42,6 @@
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
         
-        /* PULSE EFFECT TABS */
         .cat-btn.suggest-pulse { 
             animation: tabPulse 1s infinite alternate; 
             border-color: #f59e0b !important; 
@@ -65,7 +64,6 @@
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
         
-        /* GOUD PULS PRODUCTEN */
         .suggest-gold { 
             border-color: #ffd700 !important; 
             box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.6) !important; 
@@ -244,7 +242,7 @@ const State = {
     cart: [],
     queue: JSON.parse(localStorage.getItem('mc_queue')) || [],
     history: JSON.parse(localStorage.getItem('mc_history')) || [],
-    activeCat: 0, discount: false, training: false, isProcessing: false, numpadVal: "", lastCashGiven: 0, lastTxId: null
+    activeCat: 0, discount: false, training: false, isProcessing: false, numpadVal: "", lastCashGiven: 0, lastTxId: null, lastCartBackup: []
 };
 
 const Utils = {
@@ -276,7 +274,7 @@ const App = {
             App.ui.renderCart(); 
             App.ui.renderGrid();
             
-            // --- SMART PAIRING FIX: Eerst renderen, dan highlighten! ---
+            // --- SMART PAIRING FIX ---
             setTimeout(() => {
                 if(catIdx === 1) App.ui.pulseTab(3); // Warm -> Zoet
                 if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom");
@@ -329,12 +327,16 @@ const App = {
             const record = { id: Utils.uuid(), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), type: type, total: total, items: itemsFlat, catBreakdown: breakdown, isDiscounted: State.discount, device: "Tablet V2" };
             State.history.push(record); localStorage.setItem('mc_history', JSON.stringify(State.history));
             App.net.addToQueue(record);
+            
+            // SAVE FOR UNDO (Slimme Herstel Functie)
             State.lastTxId = record.id;
+            State.lastCartBackup = JSON.parse(JSON.stringify(State.cart)); // Diepe kopie van winkelwagen
+            
             App.payment.finish(false, total);
         },
         finish: (isTraining, amount) => {
             State.cart = []; State.discount = false;
-            // TOAST MELDER
+            // TOAST MET SLIMME UNDO
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
             toast.classList.add('visible');
@@ -344,8 +346,19 @@ const App = {
             setTimeout(() => { State.isProcessing = false; App.ui.setLoading(false); }, 1000);
         },
         undoLast: () => {
-            document.getElementById('toast').classList.remove('visible');
-            if(State.lastTxId) App.manager.undo(State.lastTxId);
+            // SLIMME UNDO LOGICA
+            document.getElementById('toast').classList.remove('visible'); // Direct weg
+            if(confirm("Foutje? Bon wordt gecrediteerd en producten komen terug.")) {
+                if(State.lastTxId) {
+                    App.manager.undo(State.lastTxId, true); // True = Silent mode (geen extra prompt)
+                    // HERSTEL WINKELWAGEN
+                    if(State.lastCartBackup && State.lastCartBackup.length > 0) {
+                        State.cart = JSON.parse(JSON.stringify(State.lastCartBackup));
+                        App.ui.renderCart();
+                        App.ui.renderGrid();
+                    }
+                }
+            }
         }
     },
 
@@ -389,8 +402,8 @@ const App = {
             }
         },
         
-        undo: (id) => {
-            if(!confirm("Bon crediteren? Dit wordt als correctie in het journaal gezet.")) return;
+        undo: (id, silent) => {
+            if(!silent && !confirm("Bon crediteren? Dit wordt als correctie in het journaal gezet.")) return;
             let tx = State.history.find(h => String(h.id) === String(id));
             if(tx) {
                 let negativeCats = {}; let hasCats = false;
@@ -416,7 +429,7 @@ const App = {
                 State.history = State.history.filter(h => String(h.id) !== String(id)); 
                 localStorage.setItem('mc_history', JSON.stringify(State.history));
                 App.ui.openHistory(); App.ui.updateLastBill();
-            } else { 
+            } else if(!silent) { 
                 alert("Bon niet gevonden (te oud of reeds gewist)."); 
             }
         }
