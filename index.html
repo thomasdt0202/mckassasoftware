@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MuseumCatering Kassa V4.1</title>
+    <title>MuseumCatering Kassa V4.2</title>
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -24,13 +24,8 @@
         .right-panel { flex: 34; background: var(--bg-panel); display: flex; flex-direction: column; border-left: 1px solid var(--border); box-shadow: -4px 0 24px rgba(0,0,0,0.05); z-index: 20; }
 
         /* HEADER */
-        .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: 64px; transition: background 0.3s; }
-        
-        /* TRAINING MODE STYLING */
+        .top-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-panel); padding: 12px 20px; border-radius: var(--radius); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); height: 64px; }
         .top-bar.training-mode { background: #0ea5e9 !important; color: white !important; }
-        .top-bar.training-mode .brand { color: white !important; }
-        .top-bar.training-mode .status-pill { background: rgba(255,255,255,0.2); color: white; }
-
         .brand { font-size: 1.25rem; font-weight: 900; letter-spacing: -0.02em; }
         .status-indicators { display: flex; gap: 8px; }
         .status-pill { background: var(--bg-body); padding: 6px 12px; border-radius: 99px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; color: var(--text-muted); }
@@ -42,11 +37,19 @@
         
         .bat-low { color: var(--danger) !important; animation: pulseRed 1s infinite; font-weight: 900; }
 
-        /* GRID */
+        /* GRID & TABS */
         .cat-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
         .cat-btn { padding: 14px 20px; background: var(--bg-panel); border-radius: 10px; font-weight: 700; color: var(--text-muted); font-size: 0.95rem; border: 1px solid var(--border); white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: 0.2s; }
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2); }
-        .cat-btn.suggest-pulse { animation: tabPulse 1.5s infinite; border-color: var(--warning); color: #b45309; background: #fffbeb; }
+        
+        /* PULSE EFFECT TABS */
+        .cat-btn.suggest-pulse { 
+            animation: tabPulse 1s infinite alternate; 
+            border-color: #f59e0b !important; 
+            background-color: #fffbeb !important; 
+            color: #b45309 !important; 
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5) !important;
+        }
 
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; flex: 1; overflow-y: auto; padding-bottom: 20px; align-content: start; }
         .p-card { background: var(--bg-panel); border-radius: var(--radius); padding: 12px; height: 110px; position: relative; display: flex; flex-direction: column; justify-content: space-between; border: 2px solid transparent; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); transition: 0.1s; }
@@ -61,7 +64,14 @@
         .p-price { font-weight: 600; color: var(--text-muted); align-self: flex-end; font-size: 0.9rem; }
         .p-badge { position: absolute; top: -6px; right: -6px; background: var(--primary); color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; opacity: 0; transform: scale(0.5); transition: 0.2s; }
         .p-badge.visible { opacity: 1; transform: scale(1); }
-        .suggest-gold { border-color: var(--gold) !important; box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.6) !important; animation: pulseGold 1.2s infinite; z-index: 10; }
+        
+        /* GOUD PULS PRODUCTEN */
+        .suggest-gold { 
+            border-color: #ffd700 !important; 
+            box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.6) !important; 
+            animation: pulseGold 1.2s infinite; 
+            z-index: 10; 
+        }
 
         /* RIGHT PANEL */
         .ticket-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
@@ -95,7 +105,7 @@
         .report-h { font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; border-bottom: 2px solid var(--border); margin-top: 15px; margin-bottom: 10px; padding-bottom: 5px; }
         .report-h.staff { color: #c2410c; border-color: #fdba74; }
 
-        /* ALERTS */
+        /* TOAST & ALERTS */
         .alert-banner { position: fixed; top: 0; left: 0; right: 0; padding: 20px; text-align: center; font-weight: 800; transform: translateY(-100%); transition: 0.5s; z-index: 1500; }
         .alert-banner.show { transform: translateY(0); }
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
@@ -107,9 +117,9 @@
 
         .confirm-box { background: #fee2e2; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #fca5a5; display:flex; align-items:center; gap:10px; font-weight:bold; color: #991b1b; cursor:pointer; }
 
-        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.03); border-color:var(--gold);} 100% { transform: scale(1); } }
+        @keyframes pulseGold { 0% { transform: scale(1); } 50% { transform: scale(1.03); border-color:#ffd700;} 100% { transform: scale(1); } }
         @keyframes pulseRed { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-        @keyframes tabPulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+        @keyframes tabPulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes slideIn { from { opacity:0; transform:translateY(5px); } to { opacity:1; transform:translateY(0); } }
         @keyframes blink { 50% { opacity: 0.4; } }
     </style>
@@ -249,7 +259,7 @@ const App = {
         App.ui.updateClock(); App.ui.initNumpad(); App.net.startQueueProcessor();
         App.net.initBattery(); App.ui.updateLastBill();
         
-        // CHECKBOX LOGICA (Verberg knop tot aangevinkt)
+        // CHECKBOX LOGICA
         document.getElementById('chk-confirm').addEventListener('change', function() {
             document.getElementById('btn-reset').style.display = this.checked ? "block" : "none";
         });
@@ -263,12 +273,14 @@ const App = {
             let item = State.cart.find(x => x.n === name);
             if(item) item.q++; else State.cart.push({ n:name, p:price, q:1, c:catIdx });
             
-            // PAIRING: Pulse Zoet (Cat 3) bij Warm (Cat 1)
-            if(catIdx === 1) App.ui.pulseTab(3);
-            // PAIRING: Slagroom bij Taart/Choco
-            if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom");
+            App.ui.renderCart(); 
+            App.ui.renderGrid();
             
-            App.ui.renderCart(); App.ui.renderGrid();
+            // --- SMART PAIRING FIX: Eerst renderen, dan highlighten! ---
+            setTimeout(() => {
+                if(catIdx === 1) App.ui.pulseTab(3); // Warm -> Zoet
+                if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom");
+            }, 50);
         },
         remove: (idx) => { if(State.cart[idx].q > 1) State.cart[idx].q--; else State.cart.splice(idx, 1); App.ui.renderCart(); App.ui.renderGrid(); },
         clear: () => { if(confirm("Bon wissen?")) { State.cart = []; State.discount=false; App.ui.renderCart(); App.ui.renderGrid(); } },
@@ -322,7 +334,7 @@ const App = {
         },
         finish: (isTraining, amount) => {
             State.cart = []; State.discount = false;
-            // TOAST MELDER MET UNDO
+            // TOAST MELDER
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
             toast.classList.add('visible');
@@ -361,7 +373,6 @@ const App = {
             document.getElementById('rep-pin').innerText = Utils.formatPrice(pinTotal);
             document.getElementById('rep-cash').innerText = Utils.formatPrice(cashTotal);
             
-            // RESET MODAL STATE
             document.getElementById('chk-confirm').checked = false;
             document.getElementById('btn-reset').style.display = "none";
             
@@ -369,9 +380,9 @@ const App = {
         },
         
         resetSession: () => {
-            if(confirm("Sessie afsluiten?\n\n1. DAGSTAAT wordt gewist (Dashboard 0,00)\n2. TABLET wordt gewist.")) {
+            if(!document.getElementById('chk-confirm').checked) return;
+            if(confirm("Zeker weten?")) {
                 App.ui.setLoading(true);
-                // Turbo reset
                 fetch(CONFIG.GOOGLE_URL, { method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: "RESET", time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), catBreakdown: {}, items: [], total: 0 }) });
                 State.history = []; localStorage.setItem('mc_history', JSON.stringify([]));
                 location.reload();
