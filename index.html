@@ -228,7 +228,7 @@
             <div class="report-btn" onclick="App.manager.openReport()">Dagrapportage & Afsluiten</div>
             <div class="footer-tools">
                 <span style="color:#ef4444; cursor:pointer; font-weight:bold;" onclick="App.cart.clear()">× Bon Wissen</span>
-                <span id="day-total-display" style="font-weight:900; color:#0f172a;">Totale over te zetten naar hoofdkassa: € 0,00</span>
+                <span id="day-total-display" style="font-weight:900; color:#0f172a;">Totaal over te zetten naar hoofdkassa: € 0,00</span>
                 <label style="display:flex; align-items:center; gap:5px;"><input type="checkbox" id="chk-training" onchange="App.settings.toggleTraining()"> Training</label>
             </div>
         </div>
@@ -502,7 +502,7 @@ const App = {
             if(State.discount) { document.getElementById('btn-disc').classList.add('active'); document.getElementById('disc-status').innerText="AAN"; }
             else { document.getElementById('btn-disc').classList.remove('active'); document.getElementById('disc-status').innerText="UIT"; }
             list.scrollTop = list.scrollHeight;
-            document.getElementById('day-total-display').innerText = "Totale over te zetten naar hoofdkassa: " + Utils.formatPrice(State.history.reduce((a, b) => a + b.total, 0)); 
+            document.getElementById('day-total-display').innerText = "Totaal over te zetten naar hoofdkassa: " + Utils.formatPrice(State.history.reduce((a, b) => a + b.total, 0)); 
         },
         updateClock: () => {
             const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
@@ -548,6 +548,7 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
 
 
 
