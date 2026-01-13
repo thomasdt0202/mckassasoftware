@@ -120,7 +120,7 @@
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .num-key { padding: 20px; font-size: 1.5rem; font-weight: 700; background: #f1f5f9; border-radius: 10px; }
         
-        #toast { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 20px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 2000; font-size: 0.95rem; }
+        #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: #1e293b; color: white; padding: 12px 20px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.3s; z-index: 2000; font-size: 0.95rem; }
         #toast.visible { transform: translateX(-50%) translateY(0); }
         .toast-btn { background: white; color: #1e293b; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; cursor: pointer; }
 
@@ -360,8 +360,8 @@ const App = {
                 document.getElementById('toast-msg').innerText = "Betaald: " + (amount ? Utils.formatPrice(amount) : "OK");
                 toast.classList.add('visible');
                 
-                // 3. TOAST WEG NA 4 SEC
-                setTimeout(() => toast.classList.remove('visible'), 4000);
+                // 3. TOAST WEG NA 6 SEC
+                setTimeout(() => toast.classList.remove('visible'), 6000);
                 
             }, 600); // Wacht op flash
 
@@ -548,6 +548,7 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
 
 
 
