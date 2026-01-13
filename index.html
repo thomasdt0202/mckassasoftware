@@ -507,7 +507,7 @@ const App = {
         updateClock: () => {
             const now = new Date(); document.getElementById('clock').innerText = now.toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'});
             if([10,12,14,16].includes(now.getHours()) && now.getMinutes()===0 && now.getSeconds()===0) document.getElementById('haccp-alert').classList.add('show');
-            if(now.getHours()===16 && now.getMinutes()===45 && now.getSeconds()===0) document.getElementById('closing-alert').classList.add('show');
+            if(now.getHours()===16 && now.getMinutes()===47 && now.getSeconds()===0) document.getElementById('closing-alert').classList.add('show');
         },
         
         triggerGold: () => { document.querySelectorAll('.suggest-target').forEach(e => { e.classList.add('suggest-gold'); setTimeout(()=>e.classList.remove('suggest-gold'), 5000); }); },
@@ -548,6 +548,7 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
 
 
 
