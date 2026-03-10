@@ -142,6 +142,7 @@
 
 <div id="toast">
     <span id="toast-msg">Betaald</span>
+    <div class="toast-btn" style="background:#2563eb; color:white;" onclick="App.ui.showReceipt()">BON</div>
     <div class="toast-btn" onclick="App.payment.undoLast()">HERSTEL</div>
 </div>
 
@@ -197,7 +198,20 @@
         <div class="modal-body" id="history-list" style="background:#f1f5f9; min-height:300px;"></div>
     </div>
 </div>
-
+<div id="modal-receipt" class="modal-backdrop">
+    <div class="modal-content" style="width: 400px; text-align: center;">
+        <div class="modal-header">
+            <h3>Digitale Kassabon</h3>
+            <button onclick="App.ui.closeModal('modal-receipt')" style="font-size:2rem; background:none;">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="receipt-content" style="font-family: monospace; text-align: left; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 15px;">
+                </div>
+            <p style="font-size: 0.85rem; color: #64748b; font-weight: bold;">Laat de klant een foto maken of scannen</p>
+            <img id="receipt-qr" src="" alt="QR Code" style="width: 150px; height: 150px; margin-top: 5px; border-radius: 8px; display: none;">
+        </div>
+    </div>
+</div>
 <div class="app-container" id="app-wrapper">
     <div class="left-panel">
         <div class="top-bar" id="top-bar">
@@ -533,7 +547,42 @@ const App = {
         initNumpad: () => { document.getElementById('numpad-keys').innerHTML = [7,8,9,4,5,6,1,2,3,'.',0,'OK'].map(k => `<button class="num-key" onclick="${k==='OK'?'App.ui.confirmNumpad()':`App.ui.typeNumpad('${k}')`}" style="${k==='OK'?'background:#16a34a; color:white':''}">${k}</button>`).join(''); },
         typeNumpad: (k) => { State.numpadVal += k; document.getElementById('numpad-display').innerText = State.numpadVal; },
         confirmNumpad: () => { let v = parseFloat(State.numpadVal.replace(',','.')); if(v>0) App.cart.add("Diversen", v, 5); App.ui.closeModal('modal-open'); State.numpadVal=""; },
+
+        confirmNumpad: () => { let v = parseFloat(State.numpadVal.replace(',','.')); if(v>0) App.cart.add("Diversen", v, 5); App.ui.closeModal('modal-open'); State.numpadVal=""; },
         
+        showReceipt: () => {
+            if(!State.lastTxId) return;
+            let tx = State.history.find(h => h.id === State.lastTxId);
+            if(!tx) return;
+
+            // Opmaak van de bon (Monospace / klassieke stijl)
+            let html = `<div style="text-align:center; font-weight:900; margin-bottom:5px; font-size:1.2rem; font-family:'Roboto', sans-serif;">GRAND CAFÉ</div>`;
+            html += `<div style="text-align:center; font-size:0.85rem; color:#64748b; margin-bottom:15px; font-family:'Roboto', sans-serif;">${tx.time} | Betaling: ${tx.type}</div>`;
+            html += `<hr style="border-top:1px dashed #cbd5e1; margin:10px 0;">`;
+            
+            if(State.lastCartBackup) {
+                State.lastCartBackup.forEach(item => {
+                    html += `<div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>${item.q}x ${item.n}</span><span>${Utils.formatPrice(item.q * item.p)}</span></div>`;
+                });
+            }
+            
+            html += `<hr style="border-top:1px dashed #cbd5e1; margin:10px 0;">`;
+            if (tx.isDiscounted) {
+                html += `<div style="display:flex; justify-content:space-between; color:#ef4444; font-size:0.9rem;"><span>Personeelskorting</span><span>Toegepast</span></div>`;
+            }
+            html += `<div style="display:flex; justify-content:space-between; font-weight:900; font-size:1.3rem; margin-top:10px;"><span>TOTAAL</span><span>${Utils.formatPrice(tx.total)}</span></div>`;
+            
+            document.getElementById('receipt-content').innerHTML = html;
+            
+            // Genereer de QR code (Bevat de datum en het totaalbedrag)
+            let qrText = `Grand Cafe Kassabon\nDatum: ${tx.time}\nTotaal: ${Utils.formatPrice(tx.total)}\nBedankt voor uw komst!`;
+            document.getElementById('receipt-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
+            document.getElementById('receipt-qr').style.display = 'inline-block';
+
+            App.ui.openModal('modal-receipt');
+        },
+
+        toggleTraining: () => {
         toggleTraining: () => {
             State.training = document.getElementById('chk-training').checked;
             const bar = document.getElementById('top-bar');
@@ -548,6 +597,7 @@ window.onload = App.init;
 </script>
 </body>
 </html>
+
 
 
 
