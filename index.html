@@ -18,13 +18,28 @@
             --text-main: #1e293b; --text-muted: #64748b; 
             --border: #e2e8f0; --primary: #0f172a; 
             --success: #10b981; --warning: #f59e0b; --danger: #ef4444; 
-            --radius: 6px; 
-            --shadow: 0 2px 8px rgba(0,0,0,0.04);
+            
+            --cat0-bg: #e0f2fe; --cat0-border: #3b82f6; --cat0-text: #0369a1; 
+            --cat1-bg: #ffedd5; --cat1-border: #f97316; --cat1-text: #c2410c; 
+            --cat2-bg: #f3e8ff; --cat2-border: #8b5cf6; --cat2-text: #7e22ce; 
+            --cat3-bg: #fce7f3; --cat3-border: #ec4899; --cat3-text: #be185d; 
+            --cat4-bg: #dcfce7; --cat4-border: #10b981; --cat4-text: #15803d; 
+            --cat5-bg: #f1f5f9; --cat5-border: #64748b; --cat5-text: #334155; 
+            
+            --radius: 6px; --shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
         body.dark-theme {
             --bg-body: #0f172a; --bg-panel: #1e293b; 
             --text-main: #f8fafc; --text-muted: #94a3b8; 
             --border: #334155; --primary: #ffffff; 
+            
+            --cat0-bg: #0c4a6e; --cat0-border: #3b82f6; --cat0-text: #bae6fd; 
+            --cat1-bg: #7c2d12; --cat1-border: #f97316; --cat1-text: #fed7aa; 
+            --cat2-bg: #581c87; --cat2-border: #8b5cf6; --cat2-text: #e9d5ff; 
+            --cat3-bg: #831843; --cat3-border: #ec4899; --cat3-text: #fbcfe8; 
+            --cat4-bg: #14532d; --cat4-border: #10b981; --cat4-text: #bbf7d0; 
+            --cat5-bg: #334155; --cat5-border: #64748b; --cat5-text: #cbd5e1; 
+            
             --shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
@@ -54,7 +69,6 @@
         .p-name { font-weight: 900; font-size: 1.05rem; line-height: 1.15; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-wrap: break-word; hyphens: auto; }
         .p-price { font-weight: 700; opacity: 0.9; align-self: flex-end; font-size: 1rem; color: var(--text-muted); }
         
-        .p-card.cat-style--1 { border-left-color: #f59e0b; }
         .p-card.cat-style-0 { border-left-color: #3b82f6; } 
         .p-card.cat-style-1 { border-left-color: #f97316; } 
         .p-card.cat-style-2 { border-left-color: #8b5cf6; } 
@@ -317,20 +331,25 @@ const CONFIG = {
         {c:0, n:"Charitea", p:4.75}, {c:0, n:"Sinaasappelsap", p:5.25}, {c:0, n:"Sinaasappel Aardbei", p:5.25}, 
         {c:0, n:"Melk", p:3.00}, {c:0, n:"Karnemelk", p:3.00}, {c:0, n:"Chocomel", p:3.50}, 
         {c:0, n:"Glas Limonade", p:1.00},
+        
         {c:1, n:"Koffie", p:3.40}, {c:1, n:"Koffie Verkeerd", p:4.20}, {c:1, n:"Espresso", p:3.40}, {c:1, n:"Dubbele Espresso", p:4.00}, {c:1, n:"Espresso Macch.", p:3.45}, 
         {c:1, n:"Cappuccino", p:3.75}, {c:1, n:"Latte Macchiato", p:4.20}, {c:1, n:"Flat White", p:4.20}, 
         {c:1, n:"Thee", p:3.50}, {c:1, n:"Gember Thee", p:3.95}, {c:1, n:"Munt Thee", p:3.95}, 
         {c:1, n:"Warme Choco", p:3.95}, {c:1, n:"Slagroom", p:0.75}, {c:1, n:"Havermelk", p:0.60},
-        {c:2, n:"DHP Pilsener", p:5.00}, {c:2, n:"DHP Weizener", p:5.50}, {c:2, n:"DHP IPA", p:5.50}, 
-        {c:2, n:"Hertog Jan", p:3.75}, {c:2, n:"Leffe", p:5.25}, {c:2, n:"Glas Wijn", p:5.25},
-        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Worteltaart", p:5.50}, {c:3, n:"Dubai Vanille", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50}, {c:3, n:"Brownie", p:4.95}, 
-        {c:3, n:"Croissant", p:3.50}, {c:3, n:"Pain au Chocolat", p:3.50}, {c:3, n:"Poffertjes", p:3.95}, 
-        {c:3, n:"Macaron", p:2.00}, {c:3, n:"Kinderdonut", p:3.50}, {c:3, n:"IJsje", p:2.00}, {c:3, n:"Tony", p:2.50}, {c:3, n:"Popcorn", p:2.50}, 
+        
+        {c:2, n:"Hertog Jan", p:3.75}, {c:2, n:"Hertog Jan 0.0", p:3.75}, {c:2, n:"Leffe 0.0", p:3.75}, 
+        {c:2, n:"Glas rode wijn", p:5.25}, {c:2, n:"Glas witte wijn", p:5.25}, {c:2, n:"Glas rosé", p:5.25},
+        
+        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Dubai Vanille", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50}, {c:3, n:"Vegan gebak", p:5.50}, {c:3, n:"Black velvet", p:5.50}, 
+        {c:3, n:"Croissant", p:3.50}, {c:3, n:"Chocoladebroodje", p:3.50}, {c:3, n:"Muffin", p:3.00}, 
+        {c:3, n:"Kinderdonut", p:3.50}, {c:3, n:"IJsje", p:2.00}, {c:3, n:"Tony", p:2.50}, {c:3, n:"Popcorn", p:2.50}, {c:3, n:"Zakje chips", p:2.50}, {c:3, n:"Los fruit", p:1.75},
         {c:3, n:"Slagroom", p:0.75},
-        {c:4, n:"Br. Oude Kaas", p:9.50}, {c:4, n:"Br. Tonijn", p:9.50}, {c:4, n:"Br. Gr. Groenten", p:9.50}, {c:4, n:"Br. Gehaktbal", p:9.50}, 
-        {c:4, n:"Salade Tonijn", p:12.00}, {c:4, n:"Sal. Geitenkaas", p:12.00}, 
-        {c:4, n:"Kaasbroodje", p:3.75}, {c:4, n:"Vega Saucijzenbroodje", p:3.75}, {c:4, n:"Quiche", p:3.95}, 
+        
+        {c:4, n:"Focaccia caprese", p:9.50}, {c:4, n:"Focaccia tonijn", p:9.50}, {c:4, n:"Focaccia gegrilde groenten", p:9.50}, {c:4, n:"Focaccia prosciutto", p:9.50}, 
+        {c:4, n:"Br. Gr. Groenten", p:9.50}, {c:4, n:"Salade tonijn", p:12.00}, {c:4, n:"Salade caprese", p:12.00}, 
+        {c:4, n:"Broodje hotdog", p:4.50}, {c:4, n:"Kaasbroodje", p:3.75}, {c:4, n:"Vega Saucijzenbroodje", p:3.75}, {c:4, n:"Quiche", p:3.95}, 
         {c:4, n:"Soep", p:6.50}, {c:4, n:"Soepbroodje", p:0.50},
+        
         {c:5, n:"Diversen 9%", p:0, special:true},
         {c:5, n:"Diversen 21%", p:0, special:true}
     ]
@@ -359,29 +378,6 @@ const App = {
     },
 
     manager: {
-        getHardlopers: () => {
-            if(State.history.length < 15) return [];
-            let counts = {};
-            State.history.forEach(tx => {
-                let itemsArr = Array.isArray(tx.items) ? tx.items : (tx.items ? [tx.items] : []);
-                itemsArr.forEach(itemStr => {
-                    if(itemStr.startsWith("CORRECTIE")) return;
-                    let cleanStr = itemStr.split('|')[0];
-                    let parts = cleanStr.includes('x ') ? cleanStr.split('x ') : [1, cleanStr];
-                    let q = parseInt(parts[0]) || 1; 
-                    let name = (parts[1] || cleanStr).trim();
-                    counts[name] = (counts[name] || 0) + q;
-                });
-            });
-            let sortedNames = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 18);
-            let hardlopers = [];
-            sortedNames.forEach(name => {
-                let p = CONFIG.PRODUCTS.find(x => x.n === name);
-                if(p) hardlopers.push(p);
-            });
-            hardlopers.sort((a, b) => a.c - b.c);
-            return hardlopers;
-        },
         openReport: () => {
             const validHistory = State.history.filter(h => h.action !== "GEPRINTE BON");
             if (validHistory.length === 0) { alert("Er staan geen bonnen in het systeem om over te zetten."); return; }
@@ -458,7 +454,7 @@ const App = {
                 else { item.q++; }
             } else { State.cart.push({ n:name, p:price, q:1, c:catIdx }); }
             App.ui.renderCart(); App.ui.updateBadges();
-            setTimeout(() => { if(catIdx === 1) App.ui.pulseTab(State.history.length>=15 ? 2 : 1); if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom"); }, 50);
+            setTimeout(() => { if(catIdx === 1) App.ui.pulseTab(3); if(name === "Appeltaart" || name === "Warme Choco") App.ui.highlightProduct("Slagroom"); }, 50);
         },
         remove: (idx) => { if(State.cart[idx].q > 1) State.cart[idx].q--; else State.cart.splice(idx, 1); App.ui.renderCart(); App.ui.updateBadges(); },
         clear: () => { if(confirm("Huidige bon wissen?")) { State.cart = []; State.discount=false; App.ui.renderCart(); App.ui.updateBadges(); } },
@@ -563,20 +559,12 @@ const App = {
         },
         renderCats: () => { 
             let html = '';
-            if (State.history.length >= 15) {
-                html += `<button class="cat-btn ${State.activeCat === -1 ? 'active' : ''}" onclick="App.ui.setCat(-1)">🔥 Hardlopers</button>`;
-            }
             html += CONFIG.CATS.map((n, i) => `<button class="cat-btn ${i===5 ? 'tab-small' : ''} ${i===State.activeCat?'active':''}" onclick="App.ui.setCat(${i})">${n}</button>`).join(''); 
             document.getElementById('cat-tabs').innerHTML = html;
         },
         setCat: (i) => { State.activeCat = i; App.ui.renderCats(); App.ui.renderGrid(); },
         renderGrid: () => {
-            let prodsToRender = [];
-            if (State.activeCat === -1) {
-                prodsToRender = App.manager.getHardlopers();
-            } else {
-                prodsToRender = CONFIG.PRODUCTS.filter(p => p.c === State.activeCat);
-            }
+            let prodsToRender = CONFIG.PRODUCTS.filter(p => p.c === State.activeCat);
             
             document.getElementById('prod-grid').innerHTML = prodsToRender.map(p => {
                 const action = p.special ? `App.ui.openNumpad('${p.n}', ${p.c})` : `App.cart.add('${p.n}', ${p.p}, ${p.c})`;
