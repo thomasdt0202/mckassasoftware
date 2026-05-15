@@ -320,6 +320,10 @@ if ('serviceWorker' in navigator) {
 </script>
 
 <script>
+// FIX 1: EXACTE BEREKENING (Afronding per regel ipv eindtotaal).
+// FIX 2: OPEN BEDRAGEN (Diversen) tonen nu totalen in rapportage.
+// FIX 3: BTW-BEREKENING (Lunch / Snacks) correct doorgevoerd in backend.
+
 const CONFIG = {
     GOOGLE_URL: "https://script.google.com/macros/s/AKfycbw4HCKu5DRqDvC6SsqdxhpVviAlSc1Se18gsQFSOEA70h2DkOHI6OBpb_ca4kxccMfjMA/exec",
     CATS: ["Frisdrank", "Warme Dranken", "Alcohol", "Zoetigheden", "Lunch / Snacks", "Diversen"],
@@ -340,13 +344,13 @@ const CONFIG = {
         {c:2, n:"Hertog Jan", p:3.75}, {c:2, n:"Hertog Jan 0.0", p:3.75}, {c:2, n:"Leffe 0.0", p:3.75}, 
         {c:2, n:"Glas rode wijn", p:5.25}, {c:2, n:"Glas witte wijn", p:5.25}, {c:2, n:"Glas rosé", p:5.25},
         
-        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Black velvet", p:5.50}, {c:3, n:"Dubai Vanille", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50}, {c:3, n:"Vegan gebak", p:5.50}, 
+        {c:3, n:"Appeltaart", p:5.50}, {c:3, n:"Dubai Vanille", p:5.50}, {c:3, n:"Citroen Meringue", p:5.50}, {c:3, n:"Vegan gebak", p:5.50}, {c:3, n:"Black velvet", p:5.50}, 
         {c:3, n:"Croissant", p:3.50}, {c:3, n:"Chocoladebroodje", p:3.50}, {c:3, n:"Muffin", p:3.00}, 
         {c:3, n:"Kinderdonut", p:3.50}, {c:3, n:"IJsje", p:2.00}, {c:3, n:"Tony", p:2.50}, {c:3, n:"Popcorn", p:2.50}, {c:3, n:"Zakje chips", p:2.50}, {c:3, n:"Los fruit", p:1.75},
         {c:3, n:"Slagroom", p:0.75},
         
         {c:4, n:"Focaccia caprese", p:9.50}, {c:4, n:"Focaccia tonijn", p:9.50}, {c:4, n:"Focaccia gegrilde groenten", p:9.50}, {c:4, n:"Focaccia prosciutto", p:9.50}, 
-        {c:4, n:"Salade tonijn", p:12.00}, {c:4, n:"Salade caprese", p:12.00}, 
+        {c:4, n:"Br. Gr. Groenten", p:9.50}, {c:4, n:"Salade tonijn", p:12.00}, {c:4, n:"Salade caprese", p:12.00}, 
         {c:4, n:"Broodje hotdog", p:4.50}, {c:4, n:"Kaasbroodje", p:3.75}, {c:4, n:"Vega Saucijzenbroodje", p:3.75}, {c:4, n:"Quiche", p:3.95}, 
         {c:4, n:"Soep", p:6.50}, {c:4, n:"Soepbroodje", p:0.50},
         
@@ -381,29 +385,52 @@ const App = {
         openReport: () => {
             const validHistory = State.history.filter(h => h.action !== "GEPRINTE BON");
             if (validHistory.length === 0) { alert("Er staan geen bonnen in het systeem om over te zetten."); return; }
-            let counts = {}; let staffCounts = {}; let totalRegulier = 0; let totalKorting = 0; 
+            let counts = {}; let staffCounts = {}; 
+            let divReg9 = 0; let divReg21 = 0; let divKort9 = 0; let divKort21 = 0;
+            let totalRegulier = 0; let totalKorting = 0; 
+            
             State.history.forEach(tx => {
                 if(tx.action === "GEPRINTE BON") return;
                 if(tx.isDiscounted) { totalKorting += tx.total; } else { totalRegulier += tx.total; }
-                let itemsArr = Array.isArray(tx.items) ? tx.items : (tx.items ? [tx.items] : []);
+                let itemsArr = Array.isArray(tx.detailedItems) ? tx.detailedItems : (tx.items || []);
+                
                 itemsArr.forEach(itemStr => {
                     if(itemStr.startsWith("CORRECTIE")) return;
-                    let cleanStr = itemStr.split('|')[0];
-                    let parts = cleanStr.includes('x ') ? cleanStr.split('x ') : [1, cleanStr];
-                    let q = parseInt(parts[0]) || 1; 
-                    let name = (parts[1] || cleanStr).trim();
-                    if(tx.isDiscounted) staffCounts[name] = (staffCounts[name] || 0) + q; 
-                    else counts[name] = (counts[name] || 0) + q;
+                    let parts = itemStr.split('|');
+                    let cleanStr = parts[0];
+                    let lineTotalStr = parts.length > 1 ? parts[1] : "0";
+                    let lineTotal = parseFloat(lineTotalStr.replace(/[^0-9,-]+/g,"").replace(',', '.'));
+                    
+                    let qParts = cleanStr.includes('x ') ? cleanStr.split('x ') : [1, cleanStr];
+                    let q = parseInt(qParts[0]) || 1; 
+                    let name = (qParts[1] || cleanStr).trim();
+                    
+                    if (name === "Diversen 9%") {
+                        if(tx.isDiscounted) divKort9 += lineTotal; else divReg9 += lineTotal;
+                    } else if (name === "Diversen 21%") {
+                        if(tx.isDiscounted) divKort21 += lineTotal; else divReg21 += lineTotal;
+                    } else {
+                        if(tx.isDiscounted) staffCounts[name] = (staffCounts[name] || 0) + q; 
+                        else counts[name] = (counts[name] || 0) + q;
+                    }
                 });
             });
+            
             let html = "";
-            const buildTable = (data, title) => {
-                let keys = Object.keys(data).sort(); if(keys.length === 0) return "";
+            const buildTable = (data, title, div9, div21) => {
+                let keys = Object.keys(data).sort(); 
+                if(keys.length === 0 && div9 === 0 && div21 === 0) return "";
                 let tbl = `<div class="report-h">${title}</div><table class="report-table">`;
-                keys.forEach(k => { tbl += `<tr><td class="report-qty">${data[k]}</td><td>${k}</td></tr>`; }); return tbl + "</table>";
+                keys.forEach(k => { tbl += `<tr><td class="report-qty">${data[k]}x</td><td>${k}</td></tr>`; }); 
+                if(div9 > 0) tbl += `<tr><td class="report-qty">€</td><td>Diversen 9% (Totaal: ${Utils.formatPrice(div9)})</td></tr>`;
+                if(div21 > 0) tbl += `<tr><td class="report-qty">€</td><td>Diversen 21% (Totaal: ${Utils.formatPrice(div21)})</td></tr>`;
+                return tbl + "</table>";
             };
-            html += buildTable(counts, "Normale Verkoop"); html += buildTable(staffCounts, "Personeelskorting");
+            
+            html += buildTable(counts, "Normale Verkoop", divReg9, divReg21); 
+            html += buildTable(staffCounts, "Personeelskorting", divKort9, divKort21);
             if(html === "") html = "<div style='text-align:center; padding:20px; color:var(--text-muted); font-weight:900;'>Nog geen verkopen geregistreerd.</div>";
+            
             document.getElementById('report-content').innerHTML = html;
             document.getElementById('rep-reg').innerText = Utils.formatPrice(totalRegulier);
             document.getElementById('rep-korting').innerText = Utils.formatPrice(totalKorting);
@@ -460,8 +487,12 @@ const App = {
         clear: () => { if(confirm("Huidige bon wissen?")) { State.cart = []; State.discount=false; App.ui.renderCart(); App.ui.updateBadges(); } },
         toggleDiscount: () => { State.discount = !State.discount; App.ui.renderCart(); },
         calculateTotal: () => {
-            let sub = State.cart.reduce((a, b) => a + (b.p * b.q), 0);
-            return State.discount ? Utils.round(sub * 0.75) : Utils.round(sub);
+            let total = 0;
+            State.cart.forEach(item => {
+                let line = Utils.round(item.p * item.q);
+                total += State.discount ? Utils.round(line * 0.75) : line;
+            });
+            return Utils.round(total);
         }
     },
 
@@ -471,31 +502,36 @@ const App = {
             State.isProcessing = true; App.ui.setLoading(true);
             const total = App.cart.calculateTotal();
             const cleanItems = []; const detailedItems = []; const breakdown = {};
+            let checkTotal = 0;
             
             State.cart.forEach(item => {
-                let lineTotalStr = Utils.formatPrice(item.p * item.q);
+                let lineTotal = Utils.round(item.p * item.q);
+                let finalLineTotal = State.discount ? Utils.round(lineTotal * 0.75) : lineTotal;
+                checkTotal += finalLineTotal;
+                
+                let lineTotalStr = Utils.formatPrice(finalLineTotal);
                 cleanItems.push(`${item.q}x ${item.n}`);
                 detailedItems.push(`${item.q}x ${item.n}|${lineTotalStr}`);
                 
                 let catName = CONFIG.CATS[item.c] || "Diversen";
                 if (item.n === "Diversen 9%") catName = "Lunch / Snacks"; 
                 if(!breakdown[catName]) breakdown[catName] = 0;
-                breakdown[catName] += (item.p * item.q);
+                breakdown[catName] += finalLineTotal;
             });
             
-            if(State.discount) for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k] * 0.75);
-            else for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k]);
+            checkTotal = Utils.round(checkTotal);
+            for(let k in breakdown) breakdown[k] = Utils.round(breakdown[k]);
             
             const record = { 
                 id: Utils.uuid(), date: new Date().toLocaleDateString('nl-NL'), time: new Date().toLocaleTimeString('nl-NL', {hour:'2-digit', minute:'2-digit'}), 
-                type: "BETAALD", total: total, items: cleanItems, detailedItems: detailedItems, catBreakdown: breakdown, 
+                type: "BETAALD", total: checkTotal, items: cleanItems, detailedItems: detailedItems, catBreakdown: breakdown, 
                 isDiscounted: State.discount, device: "Tablet V2", action: actionType 
             };
             
             State.lastTxId = record.id; State.lastActionType = actionType; State.lastCartBackup = JSON.parse(JSON.stringify(State.cart)); 
             State.history.push(record); localStorage.setItem('mc_history', JSON.stringify(State.history));
             if (actionType !== "GEPRINTE BON") { App.net.addToQueue(record); }
-            App.payment.finish(actionType, total, record);
+            App.payment.finish(actionType, checkTotal, record);
         },
         finish: (actionType, amount, record) => {
             State.cart = []; State.discount = false;
@@ -641,28 +677,43 @@ const App = {
             let bonUrl = CONFIG.GOOGLE_URL + "?bon=" + tx.id;
             if(activeItems && activeItems.length > 0) {
                 activeItems.forEach(item => {
-                    let lineTotal = item.p * item.q; subTotaal += lineTotal;
-                    if (item.c === 2 || (item.c === 5 && item.n !== "Diversen 9%")) { btw21 += lineTotal; } else { btw9 += lineTotal; }
-                    html += `<div class="rec-flex"><span>${item.q}x ${item.n}</span><span>${Utils.formatPrice(lineTotal)}</span></div>`;
+                    let lineTotal = Utils.round(item.p * item.q); 
+                    let finalLine = tx.isDiscounted ? Utils.round(lineTotal * 0.75) : lineTotal;
+                    subTotaal += finalLine;
+                    if (item.c === 2 || (item.c === 5 && item.n !== "Diversen 9%")) { btw21 += finalLine; } else { btw9 += finalLine; }
+                    html += `<div class="rec-flex"><span>${item.q}x ${item.n}</span><span>${Utils.formatPrice(finalLine)}</span></div>`;
                 });
             } else {
                 let itemsToParse = tx.detailedItems || tx.items || [];
                 itemsToParse.forEach(i => { 
                     let parts = i.split('|');
-                    if(parts.length === 2) { html += `<div class="rec-flex"><span>${parts[0]}</span><span>${parts[1]}</span></div>`; } 
-                    else { html += `<div>${i.replace(' || ', '')}</div>`; }
+                    if(parts.length === 2) { 
+                        let lineAmnt = parseFloat(parts[1].replace('€', '').replace(/\./g, '').replace(',', '.').trim());
+                        html += `<div class="rec-flex"><span>${parts[0]}</span><span>${parts[1]}</span></div>`; 
+                        subTotaal += lineAmnt;
+                    } else { html += `<div>${i.replace(' || ', '')}</div>`; }
                 });
-                subTotaal = tx.total / (tx.isDiscounted ? 0.75 : 1);
             }
             html += `<div class="rec-line"></div>`;
-            if (tx.isDiscounted) {
+            if (tx.isDiscounted && activeItems.length === 0) {
+                subTotaal = tx.total / 0.75;
                 let korting = subTotaal * 0.25;
                 html += `<div class="rec-flex"><span>Subtotaal</span><span>${Utils.formatPrice(subTotaal)}</span></div>`;
                 html += `<div class="rec-flex" style="color:#444;"><span>Korting (25%)</span><span>- ${Utils.formatPrice(korting)}</span></div>`;
                 html += `<div class="rec-line"></div>`; btw9 = btw9 * 0.75; btw21 = btw21 * 0.75;
+            } else if (tx.isDiscounted && activeItems.length > 0) {
+                html += `<div class="rec-flex" style="color:#444; font-size:0.8rem; margin-top:-5px;"><span>(Personeelskorting 25% toegepast)</span><span></span></div>`;
             }
             html += `<div class="rec-flex rec-bold" style="font-size: 1.35rem; margin: 10px 0;"><span>Totaal:</span><span>${Utils.formatPrice(tx.total)}</span></div>`;
             html += `<div style="font-size:0.85rem; margin-top:10px;">`;
+            if(activeItems.length === 0) {
+                btw21 = 0; btw9 = 0;
+                let has21 = false; let has9 = false;
+                for (let k in tx.catBreakdown) {
+                    if (k === "Alcohol" || k === "Diversen") { btw21 += tx.catBreakdown[k]; has21 = true; }
+                    else { btw9 += tx.catBreakdown[k]; has9 = true; }
+                }
+            }
             let btwBedrag21 = btw21 - (btw21 / 1.21); html += `<div class="rec-flex"><span>Btw 21%</span><span>${Utils.formatPrice(btwBedrag21)}</span></div>`;
             let btwBedrag9 = btw9 - (btw9 / 1.09); html += `<div class="rec-flex"><span>Btw 9%</span><span>${Utils.formatPrice(btwBedrag9)}</span></div>`;
             html += `</div>`;
